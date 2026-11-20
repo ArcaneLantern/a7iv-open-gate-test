@@ -56,3 +56,7 @@ Yes, I currently accept donations at: https://ko-fi.com/arcanelantern<br />
 If you decide to donate, please leave a message about what you are most interested in (feature, camera model etc).<br />
 <p>I could also use donated camera time testing patches for cameras I do not currently possess</p>
 <p></p>
+
+<h3>Special Thanks</h3>
+<a href="https://github.com/ma1co/sony-pmca-re">https://github.com/ma1co/sony-pmca-re</a>
+The work done in this repo allows us to do this easily over a USB cable
