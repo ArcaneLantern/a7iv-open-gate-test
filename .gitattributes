@@ -1,0 +1,2 @@
+# Files read out of the camera firmware: kept byte for byte, so no checkout changes their line endings.
+windows/tools/reference/** -text
