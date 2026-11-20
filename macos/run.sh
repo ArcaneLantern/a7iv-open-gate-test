@@ -16,7 +16,8 @@ case " $* " in
 esac
 echo "macOS asks for your password: taking the camera over from its own USB driver needs admin rights."
 # The sessions are saved as root; the same root shell gives them back to you afterwards, so a run longer than
-# sudo's 5-minute grace period doesn't ask for the password a second time.
-sudo /bin/bash -c 'private=$1; shift; "$@"; status=$?
+# sudo's 5-minute grace period doesn't ask for the password a second time. `trap : INT` keeps that shell alive
+# through Ctrl+C (the child still stops), so the sessions are given back then too.
+sudo /bin/bash -c 'trap : INT; private=$1; shift; "$@"; status=$?
   [ -d "$private" ] && chown -R "$SUDO_UID:$SUDO_GID" "$private"; exit $status' run "$PRIVATE" "$PY" -I -B "$APPLY" "$@"
 close $?
