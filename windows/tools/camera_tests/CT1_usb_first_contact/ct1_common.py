@@ -189,7 +189,7 @@ def pnp_sony_devices():
     """Sony USB devices the OS shows as present, with class and driver service. Read-only."""
     if sys.platform == "darwin":
         return ioreg_sony_devices()
-    command =("Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPDeviceID -match 'VID_054C' } | "
+    command = ("Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPDeviceID -match 'VID_054C' } | "
                "Select-Object PNPDeviceID, PNPClass, Name, Service, Status | ConvertTo-Json -Compress")
     try:
         out = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command],

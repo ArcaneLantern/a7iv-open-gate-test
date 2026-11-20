@@ -155,9 +155,9 @@ def connect(session):
     except Exception:
         session.results["libusb_backend"] = None
     if len(msc) + len(senser) != 1:
+        hint = "Unplug other Sony USB devices" if sys.platform == "darwin" else "Check the Zadig step and unplug other Sony USB devices"
         raise c.StopTest("libusb sees %d Sony mass-storage and %d Sony service devices; exactly one camera is "
-                         "needed. %sUnplug other Sony USB devices"
-                         % (len(msc), len(senser), "" if sys.platform == "darwin" else "Check the Zadig step and "))
+                         "needed. %s" % (len(msc), len(senser), hint))
     handle = senser[0] if senser else None
     if msc:
         from pmca.usb import MscDevice
