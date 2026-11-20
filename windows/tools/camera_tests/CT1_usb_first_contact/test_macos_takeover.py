@@ -13,6 +13,7 @@ from unittest import mock
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ct1_common as c
 import ct1_stage2_service as service
+import usb.core
 
 
 def entry(cls, children=(), **props):
@@ -45,16 +46,21 @@ class FakeSession:
 
 
 class FakeDriver:
-    def __init__(self, session):
+    def __init__(self, session, refuse=False):
         self.session = session
+        self.refuse = refuse
 
     def reset(self):
+        if self.refuse:
+            raise usb.core.USBError("Access denied (insufficient permissions)")
         self.session.events.append("detach")
 
 
 def fake_run(tops, unmount_code=0):
     def run(cmd, **kwargs):
         if cmd[0] == "ioreg":
+            if tops is None:
+                raise OSError("ioreg not found")
             return subprocess.CompletedProcess(cmd, 0, stdout=plistlib.dumps(tops, fmt=plistlib.FMT_XML))
         if cmd[:2] == ["diskutil", "unmountDisk"]:
             return subprocess.CompletedProcess(cmd, unmount_code, stdout="done " + cmd[2], stderr="")
@@ -80,11 +86,12 @@ class IoregListing(unittest.TestCase):
 
 
 class Takeover(unittest.TestCase):
-    def take_over(self, tops, euid=0, unmount_code=0):
-        session = FakeSession()
-        with mock.patch.object(c.subprocess, "run", fake_run(tops, unmount_code)), mock.patch("os.geteuid", return_value=euid):
-            service.take_over_from_macos(session, FakeDriver(session))
-        return session.events
+    def take_over(self, tops, euid=0, unmount_code=0, refuse=False):
+        self.session = FakeSession()
+        with mock.patch.object(c.subprocess, "run", fake_run(tops, unmount_code)), \
+                mock.patch("os.geteuid", return_value=euid, create=True):     # Windows has no os.geteuid
+            service.take_over_from_macos(self.session, FakeDriver(self.session, refuse))
+        return self.session.events
 
     def test_unmounts_before_detaching(self):
         events = self.take_over([hub(camera())])
@@ -101,6 +108,16 @@ class Takeover(unittest.TestCase):
     def test_stops_before_detaching_when_the_unmount_fails(self):
         with self.assertRaisesRegex(c.StopTest, "could not unmount"):
             self.take_over([camera()], unmount_code=1)
+        self.assertNotIn("detach", self.session.events)
+
+    def test_stops_before_detaching_when_the_listing_fails(self):
+        with self.assertRaisesRegex(c.StopTest, "not found in the macOS I/O Registry.*ioreg not found"):
+            self.take_over(None)
+        self.assertNotIn("detach", self.session.events)
+
+    def test_stops_when_macos_keeps_its_driver(self):
+        with self.assertRaisesRegex(c.StopTest, "did not let go"):
+            self.take_over([camera()], refuse=True)
 
 
 if __name__ == "__main__":
