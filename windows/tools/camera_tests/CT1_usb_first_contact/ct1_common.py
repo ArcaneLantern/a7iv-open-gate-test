@@ -44,13 +44,17 @@ def sha256(data):
 # --------------------------------------------------------------------------
 
 def check_pmca():
-    """Return the pinned PMCA-RE commit after confirming the vendored files are the published ones, unmodified (PINNED.json)."""
+    """Return the pinned PMCA-RE commit after confirming the vendored files are the published ones, unmodified (PINNED.json).
+
+    The pins are of the files with LF line endings, as published. CRLF is read as LF, so a Windows checkout
+    (git's autocrlf) and a macOS checkout or ZIP download pass the same check.
+    """
     pinned = json.loads((PMCA_ROOT / "PINNED.json").read_text(encoding="utf-8"))
     if pinned["commit"] != PMCA_COMMIT:
         raise StopTest("vendored PMCA-RE is %s, expected %s" % (pinned["commit"], PMCA_COMMIT))
     for rel, want in pinned["files"].items():
         path = PMCA_ROOT / rel
-        if not path.is_file() or sha256(path.read_bytes()) != want:
+        if not path.is_file() or sha256(path.read_bytes().replace(b"\r\n", b"\n")) != want:
             raise StopTest("PMCA-RE file %s is missing or modified" % rel)
     extra = sorted(p.relative_to(PMCA_ROOT).as_posix() for p in (PMCA_ROOT / "pmca").rglob("*.py")
                    if p.relative_to(PMCA_ROOT).as_posix() not in pinned["files"])
