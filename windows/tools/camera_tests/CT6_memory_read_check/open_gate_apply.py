@@ -2,7 +2,8 @@
 5.7K (5760x3840), each with the rear screen at 3:2 and the C3 de-squeeze preview cycle.
 
 Temporary: memory only. A cold boot (battery out for 10 seconds) returns the camera to stock.
-Run it through open_gate_4k.cmd or open_gate_5.7k.cmd.
+Run it through open_gate_4k.cmd or open_gate_5.7k.cmd, or on macOS through macos/open_gate_4k.command or
+macos/open_gate_5.7k.command.
 It asks whether the camera is set to NTSC (24p) or PAL (25p, XAVC S 4K only); step 2 differs between the two.
 
     --ntsc / --pal   answer that question on the command line
