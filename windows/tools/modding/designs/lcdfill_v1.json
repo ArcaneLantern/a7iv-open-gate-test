@@ -1,0 +1,26 @@
+{
+ "design": "lcdfill_v1",
+ "sites": [
+  {
+   "ram_address": "0x1e4bcc",
+   "old": "03000000",
+   "new": "00000000",
+   "note": "VDF fit mode for a 16:9 picture on a 3:2 panel (table for picture code 2, entry for panel code 1): 3 letterbox to 0 fill. The rear screen then shows the squeezed 16:9 live view over the whole 3:2 panel, i.e. stretched x32/27 vertically"
+  }
+ ],
+ "summary": {
+  "sites": 1,
+  "bytes": 4,
+  "panel": "rear LCD, 3:2 (panel code 1)",
+  "picture": "16:9 live view (picture code 2)",
+  "fit_stock": "letterbox (3)",
+  "fit_new": "fill (0)",
+  "vertical_stretch": "32/27 = 1.185, the inverse of ogsq_v3's squeeze",
+  "goes_with": [
+   "dmmwb4688_v1",
+   "ogsq_v3",
+   "outsz2560_v1",
+   "ogfile2560_hs_s_v1"
+  ]
+ }
+}

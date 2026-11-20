@@ -1,0 +1,25 @@
+{
+ "design": "outsz2560_v1",
+ "sites": [
+  {
+   "ram_address": "0x143c7bc",
+   "old": "000f7008",
+   "new": "000f000a",
+   "note": "size class 3, second entry: output width and height"
+  }
+ ],
+ "summary": {
+  "sites": 1,
+  "bytes": 4,
+  "output_size": [
+   3840,
+   2560
+  ],
+  "picture_bytes_at_format_code_2": 12288000,
+  "stock_output_unit_bytes": 13271040,
+  "goes_with": [
+   "dmmwb4688_v1",
+   "ogsq_v3"
+  ]
+ }
+}

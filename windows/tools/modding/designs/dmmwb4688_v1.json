@@ -1,0 +1,56 @@
+{
+ "design": "dmmwb4688_v1",
+ "sites": [
+  {
+   "ram_address": "0x1f78708",
+   "what": "size of a key 0x57f record of group 0x8a",
+   "file_offset_of_the_same_field": "0x7dfc",
+   "old": "002da901",
+   "new": "0098f701",
+   "old_value": 27864320,
+   "new_value": 33003520
+  },
+  {
+   "ram_address": "0x1f7871c",
+   "what": "size of a key 0x57f record of group 0x8a",
+   "file_offset_of_the_same_field": "0x7e10",
+   "old": "002da901",
+   "new": "0098f701",
+   "old_value": 27864320,
+   "new_value": 33003520
+  },
+  {
+   "ram_address": "0x1f786a0",
+   "what": "key of a key 0x57f record of group 0x89",
+   "file_offset_of_the_same_field": "0x7d44",
+   "old": "7f050000",
+   "new": "fe080000",
+   "old_value": "0x57f",
+   "new_value": "0x8fe"
+  },
+  {
+   "ram_address": "0x1f786b4",
+   "what": "key of a key 0x57f record of group 0x89",
+   "file_offset_of_the_same_field": "0x7d58",
+   "old": "7f050000",
+   "new": "fe080000",
+   "old_value": "0x57f",
+   "new_value": "0x8fe"
+  }
+ ],
+ "summary": {
+  "sites": 4,
+  "bytes": 16,
+  "rows": 4688,
+  "unit_size": 33003520,
+  "stock_unit_size": 27864320,
+  "parent_key": "0x6fa",
+  "parent_size": 73400320,
+  "left_free_in_the_parent": 7393280,
+  "cache_lines_64": [
+   "0x1f78680",
+   "0x1f78700"
+  ],
+  "largest_rows_that_fit": 5213
+ }
+}

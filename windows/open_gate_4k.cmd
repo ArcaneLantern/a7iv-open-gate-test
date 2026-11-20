@@ -1,0 +1,13 @@
+@echo off
+rem 4K open gate for the Sony A7 IV (firmware 6.02): 3840x2560, rear screen 3:2, C3 de-squeeze cycle.
+rem Writes TEMPORARY settings into the camera's memory. A cold boot (battery out for 10 seconds) returns it to stock.
+rem Extra options are passed on, e.g.  --dry-run  --selftest  --no-cycle  --no-lcd32
+cd /d "%~dp0"
+if not exist ".venv\Scripts\python.exe" (
+  echo Python environment missing: run setup.cmd first.
+  pause
+  exit /b 1
+)
+".venv\Scripts\python.exe" -I -B "tools\camera_tests\CT6_memory_read_check\open_gate_apply.py" %*
+echo.
+pause
