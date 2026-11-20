@@ -1,7 +1,6 @@
 # A7 IV open gate: field test kit
 
-<p>For the Sony A7 IV on firmware 6.02. Writes <b>temporary settings</b>b> into the camera's memory <b>only</b>; a cold boot (battery out for
-10 seconds) returns it to stock.</p>
+<p>For the Sony A7 IV on firmware 6.02. Writes <b>temporary settings</b> into the camera's memory <b>only</b>; a cold boot (battery out for a few seconds) returns it to stock.</p>
 
 <p>This may also return to stock if you turn the camerra off for more than a few seconds without pulling the battery. If you want to record open gate out in the field, use the Android version to setup the camera before you shoot</p>
 
