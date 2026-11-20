@@ -205,39 +205,47 @@ def pnp_sony_devices():
 
 def ioreg_sony_devices():
     """Sony USB devices macOS shows as present, from the I/O Registry: interface classes, the drivers on the
-    interfaces, and the whole disks under the device (the memory card in Mass Storage mode). Read-only."""
+    interfaces, and the whole disks under the device (the memory card in Mass Storage mode). Read-only.
+
+    `ioreg -r` lists only the outermost matches, so a camera behind a hub or dock sits inside the hub's entry:
+    the whole tree is searched."""
     try:
         out = subprocess.run(["ioreg", "-a", "-r", "-c", "IOUSBHostDevice", "-l"], capture_output=True, timeout=60).stdout
-        devices = plistlib.loads(out) if out.strip() else []
+        tops = plistlib.loads(out) if out.strip() else []
     except Exception as exc:                    # listing is evidence only; never fatal
         return [{"error": str(exc)}]
     rows = []
-    for dev in devices:
-        if dev.get("idVendor") != SONY_VID:
+    for dev in (n for top in tops for n in _walk(top)):
+        if dev.get("IOObjectClass") != "IOUSBHostDevice" or dev.get("idVendor") != SONY_VID:
             continue
         interfaces = [n for n in dev.get("IORegistryEntryChildren", []) if n.get("IOObjectClass") == "IOUSBHostInterface"]
         drivers = [d.get("IOObjectClass") for i in interfaces for d in i.get("IORegistryEntryChildren", [])]
+        disks = {n["BSD Name"] for n in _walk(dev) if n.get("IOObjectClass") == "IOMedia" and n.get("Whole") and n.get("BSD Name")}
         rows.append({"instance_id": "USB %04X:%04X at 0x%08x" % (SONY_VID, dev.get("idProduct", 0), dev.get("locationID", 0)),
                      "class": ",".join(str(i.get("bInterfaceClass")) for i in interfaces) or None,
                      "name": dev.get("USB Product Name"), "service": ",".join(dict.fromkeys(drivers)) or "none", "status": None,
-                     "disks": sorted(_whole_disks(dev))})
+                     "disks": sorted(disks)})
     return rows
 
 
-def _whole_disks(node):
-    found = set()
-    if node.get("IOObjectClass") == "IOMedia" and node.get("Whole") and node.get("BSD Name"):
-        found.add(node["BSD Name"])
+def _walk(node):
+    """An I/O Registry entry from `ioreg -a` and everything under it."""
+    yield node
     for child in node.get("IORegistryEntryChildren", []):
-        found |= _whole_disks(child)
-    return found
+        yield from _walk(child)
 
 
 def unmount_sony_disks(session):
     """macOS: unmount the camera's memory card before its mass-storage driver is taken away, so nothing the Mac was
-    writing to the card is cut off. Unmount only: the card is not ejected and nothing is written to it."""
-    for row in ioreg_sony_devices():
-        for disk in row.get("disks", []):
+    writing to the card is cut off. Unmount only: the card is not ejected and nothing is written to it. Stops when
+    the camera can't be found in the I/O Registry: its card might still be mounted."""
+    rows = ioreg_sony_devices()
+    session.log("pnp", label="before the unmount", devices=rows)
+    if not rows or any("error" in r for r in rows):
+        raise StopTest("the camera was not found in the macOS I/O Registry, so its memory card could not be unmounted "
+                       "(%s). Nothing was sent" % (rows[0]["error"] if rows else "no Sony USB device listed"))
+    for row in rows:
+        for disk in row["disks"]:
             r = subprocess.run(["diskutil", "unmountDisk", "/dev/" + disk], capture_output=True, text=True, timeout=60)
             text = (r.stdout + r.stderr).strip()
             session.log("unmount", disk=disk, code=r.returncode, out=text)
