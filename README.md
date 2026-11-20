@@ -58,5 +58,19 @@ If you decide to donate, please leave a message about what you are most interest
 <p></p>
 
 <h3>Special Thanks</h3>
-<a href="https://github.com/ma1co/sony-pmca-re">https://github.com/ma1co/sony-pmca-re</a>
-The work done in this repo allows us to do this easily over a USB cable
+<p><b><a href="https://github.com/Erlla/sony-a7m4-custom-firmware">Erlla/sony-a7m4-custom-firmware</a></b><br />
+It showed that a normal USB cable could run native code on the A7iv through the service protocol</p>
+
+<p><b><a href="https://github.com/ma1co/Sony-PMCA-RE">ma1co/Sony-PMCA-RE</a></b><br />
+It handles the switch from mass storage mode to service mode</p>
+
+<p><b><a href="https://github.com/DavidBuchanan314/fwtool.py">DavidBuchanan314/fwtool.py</a></b><br />
+It unpacks the firmware files needed for analysing<br />
+It is a fork of <a href="https://github.com/ma1co/fwtool.py">ma1co/fwtool.py</a>, which deserves credit too</p>
+
+<p><b><a href="https://github.com/Erlla/sony-a7m4-custom-firmware">Erlla/sony-a7m4-custom-firmware</a></b><br />
+It showed that a normal USB cable could run native code on the A7iv through the service protocol</p>
+
+<p><b><a href="https://github.com/leogenot/sony-a7iv-feature-research">leogenot/sony-a7iv-feature-research</a></b><br />
+Documented the exact working service mode routine on the A7iv</p>
+
