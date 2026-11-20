@@ -52,7 +52,7 @@ macos/open_gate_4k.command and macos/open_gate_5.7k.command: the same two, on a 
 
 <p>The script asks for your Mac password. macOS keeps its own driver on the camera's USB connection, and only an administrator can hand the camera over to the script. The script unmounts the camera's memory card first; it does not erase anything on it.</p>
 
-<p>If macOS refuses to open a .command file ("unidentified developer"), right-click it and choose Open, or run it from Terminal: <em>bash macos/open_gate_4k.command</em></p>
+<p>If macOS refuses to open a .command file ("unidentified developer" or "could not verify"), open System Settings &gt; Privacy &amp; Security, scroll down and click "Open Anyway" (it shows for about an hour after the refusal). Or open Terminal, type <em>bash</em> and a space, drag the .command file into the window, and press Return.</p>
 
 <p>Just like with Windows, you'll need to re-enter "Image Transfer (MSC)" several times. Press the circle button on the back whenever that pops up.</p>
 
