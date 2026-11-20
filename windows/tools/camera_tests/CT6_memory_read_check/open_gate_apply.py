@@ -3,7 +3,9 @@
 
 Temporary: memory only. A cold boot (battery out for 10 seconds) returns the camera to stock.
 Run it through open_gate_4k.cmd or open_gate_5.7k.cmd.
+It asks whether the camera is set to NTSC (24p) or PAL (25p, XAVC S 4K only); step 2 differs between the two.
 
+    --ntsc / --pal   answer that question on the command line
     --no-cycle   leave out the C3 cycle        --no-lcd32   leave out the rear screen 3:2 and the C3 cycle
     --dry-run    show what would be sent       --selftest   each step's self-test on a simulated camera
 """
@@ -38,6 +40,15 @@ CYCLE = (19, "lcdcycle_v5", "590a450de873e70bce6b5a7414183aa46892e71e2afa5ac6b54
          "the C3 key steps the rear-screen preview 3:2 -> 2:1 -> 2.4:1 in movie mode (appFw code; v5, works on the camera, F858)")
 ENC_57 = (19, "ogfile57_v1", "aa1f318fafe1a71a5286b076c2f4fc274f68f196aeaf9bf8518b4841dd2c5f8a", "level1920",
           "the encoder side for 5760x3840: both cores, memory, XAVC HS 4K and XAVC S 4K")
+# 2026-11-21: step 2 for a camera set to PAL: the same design moved to drive mode 0x880, which PAL uses for full-frame 4K 25p, with the
+# stored record of that mode in the PAL family's bytes (build/build_mode880.py). Keyed by the NTSC design's name. A state whose step 2
+# is not here has no PAL build. Both applied and worked on the camera on 2026-11-21 (F965).
+PAL_SQ = (5, "ogsq880_v1", "f7db0d936713a2a41acdfc7746828ea7d0a201b32fc58a166529bbf519620636", "level56",
+          "the full-height picture, every sensor row, in drive mode 0x880 (camera set to PAL, 25p)")
+PAL_57N = (5, "og57n880_v1", "e2908a73cecab247d5d37be5d757beeb9a1c30fcf60f55aa0a481b93af527760", "level56",
+           "the full-height picture, 5760x3840 out of the first scaler, in drive mode 0x880 (camera set to PAL, 25p)")
+PAL = {"ogsq_v3": PAL_SQ, "og57n_v1": PAL_57N}
+RATE = {"NTSC": "24p", "PAL": "25p"}
 BOTH = "XAVC HS 4K or XAVC S 4K"
 STATES = {
     "default": {"steps": BASE + [OUT_2560, ENC_HS_S, LCD_32, CYCLE], "formats": BOTH, "size": "3840x2560", "test": None,
@@ -57,6 +68,28 @@ COLD_BOOT = "Cold boot the camera (power off, battery out for 10 seconds). That 
 
 def say(text=""):
     print(text, flush=True)
+
+
+def for_family(steps, family):
+    """The steps for a camera set to NTSC (as they are) or PAL (step 2 replaced by its PAL library)."""
+    if family != "PAL":
+        return steps
+    out = []
+    for step in steps:
+        if step[0] == 5:
+            if step[1] not in PAL:
+                raise SystemExit("This state has no PAL build (its step 2 is %s). Set the camera's NTSC/PAL Selector to NTSC for it. Nothing was sent." % step[1])
+            step = PAL[step[1]]
+        out.append(step)
+    return out
+
+
+def ask_family():
+    say("Is the camera set to NTSC or PAL? (Menu > Setup > Area/Date > NTSC/PAL Selector. NTSC offers 24p/30p/60p, PAL offers 25p/50p.)")
+    answer = input("Type NTSC or PAL: ").strip().upper()
+    if answer not in RATE:
+        raise SystemExit("Neither NTSC nor PAL. Nothing was sent.")
+    return answer
 
 
 def library(level, design):
@@ -193,6 +226,8 @@ def main():
     ap.add_argument("--real57", action="store_true", help="the real 5760x3840 state (F906): first scaler 5760x3840 (og57n_v1), XAVC HS 4K at 24p, with the rear-screen steps")
     ap.add_argument("--no-cycle", action="store_true", help="leave out the C3 anamorphic preview cycle (step 6): C3 keeps its own function in movie mode")
     ap.add_argument("--no-lcd32", action="store_true", help="leave out the rear-screen step: live view squeezed in a 16:9 letterbox, as before 2026-11-19")
+    ap.add_argument("--ntsc", action="store_true", help="the camera's NTSC/PAL Selector is on NTSC (24p); without --ntsc or --pal the script asks")
+    ap.add_argument("--pal", action="store_true", help="the camera's NTSC/PAL Selector is on PAL (25p, XAVC S 4K): step 2 is the design for drive mode 0x880 (F965)")
     ap.add_argument("--dry-run", action="store_true", help="show what each step would send, on a simulated camera; nothing is sent")
     ap.add_argument("--selftest", action="store_true", help="run each step's self-test on a simulated camera; nothing is sent")
     args = ap.parse_args()
@@ -212,11 +247,18 @@ def main():
         if LCD_32 not in steps:
             steps = steps + [LCD_32]
         steps = steps + [CYCLE]
+    if args.ntsc and args.pal:
+        raise SystemExit("--ntsc and --pal do not go together. Nothing was sent.")
     if args.dry_run or args.selftest:
-        return offline("--dry-run" if args.dry_run else "--selftest", steps)
+        return offline("--dry-run" if args.dry_run else "--selftest", for_family(steps, "PAL" if args.pal else "NTSC"))
 
     say(st["title"])
     say("-" * 78)
+    family = "PAL" if args.pal else "NTSC" if args.ntsc else ask_family()
+    steps, rate = for_family(steps, family), RATE[family]
+    if family == "PAL":
+        formats = "XAVC S 4K"                     # on PAL the camera's own menu offers XAVC HS 4K at 50p only (Super 35); 25p exists in XAVC S 4K
+    say()
     if st["test"]:
         say(st["test"] + ".")
         say()
@@ -224,7 +266,7 @@ def main():
     say("written to flash. A cold boot (battery out for 10 seconds) removes all of it.")
     say()
     say("Before you start:")
-    say("  1. In the menu, set File Format to %s and the frame rate to 24p." % formats)
+    say("  1. The camera is set to %s: in the menu, set File Format to %s and the frame rate to %s." % (family, formats, rate))
     say("  2. Cold boot the camera: power off, battery out for 10 seconds, battery in.")
     say("  3. Turn it on with the mode dial on STILLS (not movie).")
     if CYCLE in steps:
@@ -233,11 +275,16 @@ def main():
     say("  4. Connect the USB cable. USB Connection Mode: Mass Storage.")
     say()
     say("While it is applied:")
-    say("  - Only %s at 24p records properly. Do NOT record in another 4K format or" % formats)
+    say("  - Only %s at %s records properly. Do NOT record in another 4K format or" % (formats, rate))
     say("    frame rate, and stay in full-frame 4K: do not switch to HD or to APS-C/Super 35")
     say("    (a mode that is not set up can stop the camera responding; it then needs a cold boot).")
     for k, line in enumerate(st["notes"]):
         say(("  - " if k == 0 or line[:1].isupper() and st["notes"][k - 1].endswith((".", ")")) else "    ") + line)
+    say("  - Do not change the NTSC/PAL Selector while it is applied.")
+    if family == "PAL":
+        say("  - On PAL use XAVC S 4K: the camera offers XAVC HS 4K at 50p only (Super 35), which this state does not cover.")
+        say("  - PAL is new (first camera runs 2026-11-21, one camera): step 2 changes drive mode 0x880, the mode PAL uses for 25p.")
+        say("    If the picture looks stretched or the camera restarts, say so.")
     say()
     check_libraries(steps)
     shown = input("Type the firmware version the camera shows (Menu > Setup > Version): ").strip()
@@ -267,6 +314,11 @@ def main():
             say("The settings are NOT complete. Do not record like this.")
             if n == 1 and "nothing is written" in text:
                 say("Step 1 only works straight after a cold boot with the dial on stills, before movie mode has been used.")
+            if level == 5 and "holds neither" in text:
+                say("Step 2 was run for a camera set to %s and the camera's stored sensor record is not the %s one. Check Menu > Setup >" % (family, family))
+                say("Area/Date > NTSC/PAL Selector and give that answer next time. Nothing of step 2 was written.")
+                if family == "PAL":
+                    say("If the camera is on PAL: the record of drive mode 0x880 has not been read from a camera yet; send the session folder.")
             say(COLD_BOOT + " Then start again from the list at the top.")
             raise SystemExit(1)
         say()
@@ -286,13 +338,13 @@ def main():
     else:
         say("  2. Turn the dial to movie. The rear screen shows the full-height picture, squeezed.")
     if st["test"]:
-        say("  3. Record a few seconds in %s at 24p, stop, and play the clip back." % formats)
+        say("  3. Record a few seconds in %s at %s, stop, and play the clip back." % (formats, rate))
         say("     The file should be %s." % size)
     else:
-        say("  3. Record in %s at 24p. The file is %s." % (formats, size))
+        say("  3. Record in %s at %s. The file is %s." % (formats, rate, size))
     say()
     say("Remember:")
-    say("  - Stay in %s at 24p, full frame. Other formats and frame rates do not work in this state." % formats)
+    say("  - Stay in %s at %s, full frame. Other formats and frame rates do not work in this state." % (formats, rate))
     say("  - Power-off, a restart or a cold boot removes the settings; run this again to get them back.")
     if args.test == "5.7k":
         say("  - IF IT FAILS: leave the camera on if you can, connect USB, and report what you saw before any cold boot.")

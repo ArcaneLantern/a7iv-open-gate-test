@@ -110,6 +110,24 @@ DESIGN_LIBS = {"fhband_v1": {5: ("libJit_level5_fhband_v1.so", "982d2ea9d8916246
                "ogsq_v3": {5: ("libJit_level5_ogsq_v3.so", "527c12d151824a5431dafc46693033ea53add09b96dd59e39aa975139e454446"),
                            6: ("libJit_level6_ogsq_v3.so", "4286cf74b8efab46cc42f51d5a466467d547fd94d1ee58802eacb8e3f7399457"),
                            8: ("libJit_level8_ogsq_v3.so", "f51691c100d0902f5270b76e1f2e072c91b04a602656c2d679a6c9a8ef8de794")},
+               # 2026-11-21: the same designs for a camera set to PAL (build/build_pal_records.py). The 13 sites are the same; the stored record's
+               # stock and new bytes are those of frame-rate family 1 (input table 0xc98d80), six of the 26 differ from the NTSC ones. The stock
+               # bytes equal the record read from the camera on PAL (level 7, 2026-11-21). An NTSC library refuses on a PAL camera and the reverse.
+               "ogsq_v3_pal": {5: ("libJit_level5_ogsq_v3_pal.so", "775f6cdad18ea622b1f0440b09d395292510d26791961ac16886cc821fb3c821"),
+                               6: ("libJit_level6_ogsq_v3_pal.so", "67d11df3e9530d57b2e86f6adb7fd68b34713e61a611307e4ffa1a1bd837cf90"),
+                               8: ("libJit_level8_ogsq_v3_pal.so", "0b0cf33ac57eefb071e8b6b9d9306f918be308f923977ccf7e73c99e42912291")},
+               "og57n_v1_pal": {5: ("libJit_level5_og57n_v1_pal.so", "5d1b256ebfa9567cd2aac1ce3b3d9b23369561c4f8b14234bd8152cc50fbd04a"),
+                                6: ("libJit_level6_og57n_v1_pal.so", "c266f1847161fac07ebcddb38ef7ffae91a16b77b60544c3eb6897401b28d17c"),
+                                8: ("libJit_level8_og57n_v1_pal.so", "7eec2a84659946a30e6c83511273be3b5261a3a56fd32f267ae9811efaec74be")},
+               # 2026-11-21: the same two designs moved to drive mode 0x880 (index 9), the mode a camera set to PAL uses for full-frame 4K 25p
+               # (build/build_mode880.py; level 8 on the camera read drive mode 0x880 with the PAL state above applied). 13 sites one table row
+               # before 0x8c0's, the 0x880 image records 0xbf5ec8 / 0xbf6a80, and the stored record of index 9 with the PAL family's bytes.
+               "ogsq880_v1": {5: ("libJit_level5_ogsq880_v1.so", "f7db0d936713a2a41acdfc7746828ea7d0a201b32fc58a166529bbf519620636"),
+                              6: ("libJit_level6_ogsq880_v1.so", "b53856345106b9fd67a2871663ce25538721139f6e034a22a6d9d07118901b8a"),
+                              8: ("libJit_level8_ogsq880_v1.so", "94bb67c72d26e423170f7dbae4150c40b0538a15f85f339f2b7a04b0916e775b")},
+               "og57n880_v1": {5: ("libJit_level5_og57n880_v1.so", "e2908a73cecab247d5d37be5d757beeb9a1c30fcf60f55aa0a481b93af527760"),
+                               6: ("libJit_level6_og57n880_v1.so", "87f58556213a04d6bfa28865ddaa891b6b14e58e2229d46dee53009a7bcfe14e"),
+                               8: ("libJit_level8_og57n880_v1.so", "78c0f1a1d1cdb16394f489fda56fb44a57e166a7bb4acf763360874b3382db6c")},
                # T3: the stock 3958-row stage and stock scaler, moved to the bottom of the full-height frame (ends on the same row as the failures)
                "fhs3958b_v1": {5: ("libJit_level5_fhs3958b_v1.so", "604ee7454e5841775853f955692a534facf8ef0bc549b4822dfd161818e7e8e8"),
                                6: ("libJit_level6_fhs3958b_v1.so", "f36006754d58a5603618bb91ef13b05be4a77512daac83564ecddeb4c76e7174"),
@@ -361,8 +379,11 @@ def read(camera, path):
 def known_answer(session, camera):
     want = (c.EXTRACTED / KNOWN_FILE).read_bytes()
     there, data = read(camera, KNOWN_PATH)
-    if not there or data != want:
-        raise c.StopTest("DeviceInfo.xml does not match the 6.02 file; nothing else is sent")
+    if not there:
+        raise c.StopTest("DeviceInfo.xml does not match the 6.02 file (the camera returned no file); nothing else is sent")
+    if data != want:
+        raise c.StopTest("DeviceInfo.xml does not match the 6.02 file (the camera returned %d bytes, SHA-256 %s; the 6.02 file has %d); nothing else is sent"
+                         % (len(data), c.sha256(data)[:16], len(want)))
     session.say("Known-answer read: DeviceInfo.xml equals the 6.02 file")
 
 
@@ -759,7 +780,7 @@ def check_result(data):
                                               else "16 (stock full-frame 4K)" if all(vals[r] == m16 for _, r, m16, _ in SHADOW)
                                               else "neither: register 0x01 = %d" % vals["0x01"])
     if LEVEL in (5, 6):
-        facts["level56"] = {"record_at": [m.decode() for m in re.findall(rb"^stored record of mode 0x8c0 at 0x([0-9a-f]{8}) ", data, re.M)],
+        facts["level56"] = {"record_at": [m.decode() for m in re.findall(rb"^stored record of mode 0x8[0-9a-f]{2} at 0x([0-9a-f]{8}) ", data, re.M)],
                             "as_expected": len(re.findall(rb"^site 0x[0-9a-f]{8} length \d+: as expected$", data, re.M)),
                             "already": len(re.findall(rb"^site 0x[0-9a-f]{8} length \d+: already holds the target bytes$", data, re.M)),
                             "written": len(re.findall(rb"^site 0x[0-9a-f]{8} length \d+: written and read back$", data, re.M)),
