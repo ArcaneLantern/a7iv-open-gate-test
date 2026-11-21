@@ -9,6 +9,7 @@ It asks whether the camera is set to NTSC (24p) or PAL (25p, XAVC S 4K only); st
     --ntsc / --pal   answer that question on the command line
     --no-cycle   leave out the C3 cycle        --no-lcd32   leave out the rear screen 3:2 and the C3 cycle
     --old-lcd    the rear-screen steps as before 2026-11-21 (no focus frames on the rear screen)
+    --rate100    5.7K: the menu's own bit rate (at most 100 Mbps) instead of 300 Mbps on the 100M record settings
     --dry-run    show what would be sent       --selftest   each step's self-test on a simulated camera
 """
 import argparse
@@ -49,6 +50,11 @@ CYCLE_V5 = (19, "lcdcycle_v5", "590a450de873e70bce6b5a7414183aa46892e71e2afa5ac6
             "the C3 key steps the rear-screen preview 3:2 -> 2:1 -> 2.4:1 in movie mode (appFw code; v5, works on the camera, F858; no focus frames, F966)")
 ENC_57 = (19, "ogfile57_v1", "aa1f318fafe1a71a5286b076c2f4fc274f68f196aeaf9bf8518b4841dd2c5f8a", "level1920",
           "the encoder side for 5760x3840: both cores, memory, XAVC HS 4K and XAVC S 4K")
+# 2026-11-21, a test the owner asked for: ENC_57 with the 100M record settings at 300 Mbps (build/build_og57.py --rate300; the rate figures and
+# the level of Sony's own dormant 5760x3240 profiles). Works on the camera and the blocking seen at 100 Mbps is gone (F971): step 4 of the
+# 5.7K state since 2026-11-21. ENC_57 is what --rate100 puts back.
+ENC_57_300 = (19, "ogfile57r300_v1", "56f4af121f1b944fb50e94924035af3212b4e041ee3393e39d20d90a08693c75", "level1920",
+              "the encoder side for 5760x3840 with the 100M record settings at 300 Mbps: both cores, memory, XAVC HS 4K and XAVC S 4K")
 # 2026-11-21: step 2 for a camera set to PAL: the same design moved to drive mode 0x880, which PAL uses for full-frame 4K 25p, with the
 # stored record of that mode in the PAL family's bytes (build/build_mode880.py). Keyed by the NTSC design's name. A state whose step 2
 # is not here has no PAL build. Both applied and worked on the camera on 2026-11-21 (F965).
@@ -64,12 +70,15 @@ STATES = {
                 "title": "Open gate for the Sony A7 IV: a 3840x2560 recording of the whole 3:2 sensor area",
                 "notes": ["The rear screen shows the whole picture at 3:2 while shooting (step 5); every 16:9 picture on the rear screen fills it too. The file is",
                           "3840x2560 and plays back in the camera at 3:2."]},
-    "real57": {"steps": BASE[:1] + [PIC_57N, OUT_57, ENC_57, LCD_32, CYCLE], "formats": "XAVC HS 4K", "size": "5760x3840", "test": None,
+    "real57": {"steps": BASE[:1] + [PIC_57N, OUT_57, ENC_57_300, LCD_32, CYCLE], "formats": "XAVC HS 4K", "size": "5760x3840", "test": None,
                "title": "Open gate for the Sony A7 IV: a real 5760x3840 recording of the whole 3:2 sensor area",
                "notes": ["The file is 5760x3840 with real detail: the first scaler gives 5760x3840 and nothing is enlarged (F906). Its container",
                          "header says 3840x2160; the picture inside is 5760x3840.",
-                         "Recorded on the camera on 2026-11-20 in XAVC HS 4K at 24p, a few seconds. NOT yet tried in this state: XAVC S 4K, 25p,",
-                         "long recordings (heat), and the rear-screen steps 5 and 6 (they are proven with the 3840x2560 state).",
+                         "The record settings marked 100M record at about 300 Mbps (peaks to 340): at 100 Mbps this size showed blocking (F971).",
+                         "The lower record settings keep their own bit rate. The menu and the remaining time still say 100M: the card fills",
+                         "three times as fast as shown. Use a fast card (about 40 MB a second: CFexpress Type A, or SD V60 / V90).",
+                         "--rate100 gives the earlier step 4, with the menu's own bit rate.",
+                         "Not yet tried in this state: long recordings (heat).",
                          "IF THE CAMERA RESTARTS OR FREEZES: do not cold boot; connect USB and say so (level 10 reads the crash report)."]},
 }
 COLD_BOOT = "Cold boot the camera (power off, battery out for 10 seconds). That returns it to stock."
@@ -234,6 +243,7 @@ def main():
     ap.set_defaults(hs_only=False, with_xavc_s=False, test=None, lcd32=False, cycle=False)
     ap.add_argument("--real57", action="store_true", help="the real 5760x3840 state (F906): first scaler 5760x3840 (og57n_v1), XAVC HS 4K at 24p, with the rear-screen steps")
     ap.add_argument("--old-lcd", action="store_true", help="use the rear-screen steps as they were before 2026-11-21 (lcdfill_v1, lcdcycle_v5: proven, but no focus frames on the rear screen, F966)")
+    ap.add_argument("--rate100", action="store_true", help="5.7K: the encoder step as it was before 2026-11-21 (ogfile57_v1): the menu's own bit rate, at most 100 Mbps, instead of 300 Mbps on the 100M settings")
     ap.add_argument("--no-cycle", action="store_true", help="leave out the C3 anamorphic preview cycle (step 6): C3 keeps its own function in movie mode")
     ap.add_argument("--no-lcd32", action="store_true", help="leave out the rear-screen step: live view squeezed in a 16:9 letterbox, as before 2026-11-19")
     ap.add_argument("--ntsc", action="store_true", help="the camera's NTSC/PAL Selector is on NTSC (24p); without --ntsc or --pal the script asks")
@@ -257,6 +267,8 @@ def main():
         if LCD_32 not in steps:
             steps = steps + [LCD_32]
         steps = steps + [CYCLE]
+    if args.rate100:
+        steps = [ENC_57 if x == ENC_57_300 else x for x in steps]
     if args.old_lcd:
         steps = [{LCD_32: LCD_32_V1, CYCLE: CYCLE_V5}.get(x, x) for x in steps]
     if args.ntsc and args.pal:
@@ -361,7 +373,7 @@ def main():
     say("Remember:")
     say("  - Stay in %s at %s, full frame. Other formats and frame rates do not work in this state." % (formats, rate))
     say("  - Power-off, a restart or a cold boot removes the settings; run this again to get them back.")
-    if args.test == "5.7k":
+    if args.test in ("5.7k", "5.7k-300"):
         say("  - IF IT FAILS: leave the camera on if you can, connect USB, and report what you saw before any cold boot.")
     say("  - When you are done, cold boot the camera to return it to stock.")
     say("  - If the camera misbehaves and will not respond: " + COLD_BOOT)

@@ -232,6 +232,12 @@ DESIGN_LIBS = {"fhband_v1": {5: ("libJit_level5_fhband_v1.so", "982d2ea9d8916246
                "ogfile57_v1": {18: ("libJit_level18_ogfile57_v1.so", "00b099ed7a787e3a9402b5dd7cfe1c1d81531863ed0c81651f9d38a6b47ca5d3"),
                                19: ("libJit_level19_ogfile57_v1.so", "aa1f318fafe1a71a5286b076c2f4fc274f68f196aeaf9bf8518b4841dd2c5f8a"),
                                20: ("libJit_level20_ogfile57_v1.so", "7f739de98479d67e907286fb771bd048173e22c1896a16947df695fd38899e4c")},
+               # ogfile57r300_v1 (2026-11-21; build/build_og57.py --rate300; a test the owner asked for): ogfile57_v1, and in the 11 profiles at 97
+               # million or more (the 100M record settings) the three rate fields get the figures of Sony's own dormant 5760x3240 profiles
+               # (300, 340, 340 million) and the level byte Level 6.1. 242 sites. Not run on a camera.
+               "ogfile57r300_v1": {18: ("libJit_level18_ogfile57r300_v1.so", "7ea1b14d914074136b687bb871e662eb1c4855b9af2d954fa132f6281f6e6613"),
+                                   19: ("libJit_level19_ogfile57r300_v1.so", "56f4af121f1b944fb50e94924035af3212b4e041ee3393e39d20d90a08693c75"),
+                                   20: ("libJit_level20_ogfile57r300_v1.so", "1a093b909f326695aad2e220df185ddc6815401386c91f00f82fd3c079b8f0c0")},
                # ogfile69_v1 (2026-11-20; build/build_og57.py --raster 6912 2880): the same 209 sites for a 6912x2880 picture (2.4:1): rows for the
                # first core 1440, +0x4c 10368, Level 6. The codec's own calculation asks less memory than for 5760x3840. Not run on a camera.
                "ogfile69_v1": {18: ("libJit_level18_ogfile69_v1.so", "15bccab5d034cabaf90b153c1e288193456a57a9dc1d01c774dbc323633dcdc3"),
@@ -1611,8 +1617,8 @@ def main():
     parser.add_argument("--level", type=int, choices=sorted(set(LIBS) | {13, 14, 16, 17, 18, 19, 20, 23, 24, 25}), default=1, help="which pinned build to use (default 1)")
     parser.add_argument("--design", choices=["og4k_data_v1"] + sorted(DESIGN_LIBS), default="og4k_data_v1",
                         help="for levels 5, 6 and 8: whose site table (default og4k_data_v1); for levels 13 and 14: dmmwb4080_v1 or dmmwb4688_v1; "
-                             "for levels 16 and 17: outsz2560_v1, og2560e4_v1, og57cp_v1, og57cp_v2, og57cp_v3 or lcdfill_v1; for level 18: ogfile2560_hs_v1, ogfile2560_s_v1, ogfile2560_hs_s_v1 or ogfile57_v1; "
-                             "for levels 19 and 20: ogfile2560_hs_v1, ogfile2560_hs_s_v1 or ogfile57_v1")
+                             "for levels 16 and 17: outsz2560_v1, og2560e4_v1, og57cp_v1, og57cp_v2, og57cp_v3 or lcdfill_v1; for level 18: ogfile2560_hs_v1, ogfile2560_s_v1, ogfile2560_hs_s_v1, ogfile57_v1 or ogfile57r300_v1; "
+                             "for levels 19 and 20: ogfile2560_hs_v1, ogfile2560_hs_s_v1, ogfile57_v1 or ogfile57r300_v1")
     parser.add_argument("--firmware-shown")
     parser.add_argument("--library-sha256", help="the SHA-256 of the library you reviewed; must equal the pinned one")
     args = parser.parse_args()
