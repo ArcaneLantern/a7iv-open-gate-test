@@ -16,7 +16,8 @@ macos/open_gate_4k.command and macos/open_gate_5.7k.command: the same two, on a 
 <h3>Issues</h3>
 <ul>
   <li>5.7K does not currently play back in camera</li>
-  <li>5.7K is still set at 100mbps, this will change in an update as it needs more</li>
+  <li><s>5.7K is still set at 100mbps, this will change in an update as it needs more</s></li>
+  <li>5.7K is now set to 300mbps, 100mbps caused too much blocking. This is for X-AVC HS 24p NTSC currently. Image is now much cleaner.</li>
   <li>You may need to use ffmpeg to correct clips to use in Davinci resolve or other editors, they work correctly in VLC, but may appear vertically squeezed (4K 3:2) or garbled (5.7K), the command for this is:<br />
   <em>ffmpeg -i input.mp4 -map 0:v:0 -map 0:a? -c copy -movflags +faststart output_fixed.mp4</em><br />
     <b>NB:</b> This command will strip gyro data as well.
