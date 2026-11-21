@@ -11,7 +11,8 @@
 
 <p>android/A7IV-OpenGate.apk: the phone app (USB-C to the camera) both 4K and 5.7K options.<br />
 windows/open_gate_4k.cmd: 4K open gate, 3840x2560, rear screen 3:2, C3 de-squeeze preview cycle.<br />
-windows/open_gate_5.7k.cmd: 5.7K open gate, 5760x3840, rear screen 3:2, C3 de-squeeze preview cycle.</p>
+windows/open_gate_5.7k.cmd: 5.7K open gate, 5760x3840, rear screen 3:2, C3 de-squeeze preview cycle.<br />
+macos/open_gate_4k.command and macos/open_gate_5.7k.command: the same two, on a Mac.</p>
 <h3>Issues</h3>
 <ul>
   <li>5.7K does not currently play back in camera</li>
@@ -39,6 +40,21 @@ windows/open_gate_5.7k.cmd: 5.7K open gate, 5760x3840, rear screen 3:2, C3 de-sq
 <p>Currently they both use 100mbps stock at the moment which needs to be increased for 5.7K.</p>
 
 <p>You will need to re-enter "Image Transfer (MSC)" multiple times until the script is finished, just push the circle button on the back of the camera each time it comes back up until it's complete.</p>
+
+
+
+<h3>macOS</h3>
+<p>No driver or Zadig step is needed on a Mac. You need Python 3.9 or later: the one macOS offers with the Xcode Command Line Tools (run <em>xcode-select --install</em> in Terminal) works, or install it from python.org.</p>
+
+<p>Once: double-click "macos/setup.command". It sets up Python and the USB library the scripts use (no Homebrew needed).</p>
+
+<p>Then connect the camera like on Windows (stills dial, USB Connection Mode: Mass Storage, select "Image Transfer (MSC)") and double-click "macos/open_gate_4k.command" or "macos/open_gate_5.7k.command".</p>
+
+<p>The script asks for your Mac password. macOS keeps its own driver on the camera's USB connection, and only an administrator can hand the camera over to the script. The script unmounts the camera's memory card first; it does not erase anything on it.</p>
+
+<p>If macOS refuses to open a .command file ("unidentified developer" or "could not verify"), open System Settings &gt; Privacy &amp; Security, scroll down and click "Open Anyway" (it shows for about an hour after the refusal). Or open Terminal, type <em>bash</em> and a space, drag the .command file into the window, and press Return.</p>
+
+<p>Just like with Windows, you'll need to re-enter "Image Transfer (MSC)" several times. Press the circle button on the back whenever that pops up.</p>
 
 
 
