@@ -8,6 +8,7 @@ It asks whether the camera is set to NTSC (24p) or PAL (25p, XAVC S 4K only); st
 
     --ntsc / --pal   answer that question on the command line
     --no-cycle   leave out the C3 cycle        --no-lcd32   leave out the rear screen 3:2 and the C3 cycle
+    --old-lcd    the rear-screen steps as before 2026-11-21 (no focus frames on the rear screen)
     --dry-run    show what would be sent       --selftest   each step's self-test on a simulated camera
 """
 import argparse
@@ -35,10 +36,17 @@ OUT_2560 = (16, "outsz2560_v1", "af755e0b5dc17586565947f49cc4be839d1cdef6dfd2db7
 ENC_HS_S = (19, "ogfile2560_hs_s_v1", "7a354f584b36bc38309f8257cd04784c6d245d3de2ae8e4a96a7b3ca0a21a7a2", "level1920", "the encoder side for XAVC HS 4K and XAVC S 4K")
 OUT_57 = (16, "og57cp_v3", "eb14cbfff320dd8b23e5fd70326a115fc23350029e7dbe187b9979301dd6d599", "level1617",
           "four scaler units, a buffer for the output picture (30.8 MB units) and its id in the size table, the output size 5760x3840")
-LCD_32 = (16, "lcdfill_v1", "1141376a1dd43614a6b9950fd89b7449d292adceaecc254a4561a1f18c4cb57d", "level1617",
-          "the rear screen at 3:2: the squeezed live view stretched over the whole 3:2 panel (F791)")
-CYCLE = (19, "lcdcycle_v5", "590a450de873e70bce6b5a7414183aa46892e71e2afa5ac6b54055380c5d728c", "level1920",
-         "the C3 key steps the rear-screen preview 3:2 -> 2:1 -> 2.4:1 in movie mode (appFw code; v5, works on the camera, F858)")
+LCD_32 = (16, "lcdfill_v2", "1393e38434ac21b2f1050cde5534fb06feed459bd9c837e0d5d69a0a0bd2f22c", "level1617",
+          "the rear screen at 3:2 with the focus frames: the squeezed live view stretched over the whole 3:2 panel (F791), and the frame "
+          "tables set to that rectangle (v2; works on the camera, F968)")
+CYCLE = (19, "lcdcycle_v6", "64a67f1f7d541e9946e1084a382884d11b11f17031cc29a746e18e0d1b58fe10", "level1920",
+         "the C3 key steps the rear-screen preview 3:2 -> 2:1 -> 2.4:1 in movie mode and keeps the focus frames (appFw code; v6 = v5, which "
+         "works on the camera, F858, plus the frame tables; works on the camera in 3:2, F968)")
+# The steps as they were before 2026-11-21 (no focus frames on the rear screen, F966): --old-lcd puts them back in place of the two above.
+LCD_32_V1 = (16, "lcdfill_v1", "1141376a1dd43614a6b9950fd89b7449d292adceaecc254a4561a1f18c4cb57d", "level1617",
+             "the rear screen at 3:2: the squeezed live view stretched over the whole 3:2 panel (F791; no focus frames, F966)")
+CYCLE_V5 = (19, "lcdcycle_v5", "590a450de873e70bce6b5a7414183aa46892e71e2afa5ac6b54055380c5d728c", "level1920",
+            "the C3 key steps the rear-screen preview 3:2 -> 2:1 -> 2.4:1 in movie mode (appFw code; v5, works on the camera, F858; no focus frames, F966)")
 ENC_57 = (19, "ogfile57_v1", "aa1f318fafe1a71a5286b076c2f4fc274f68f196aeaf9bf8518b4841dd2c5f8a", "level1920",
           "the encoder side for 5760x3840: both cores, memory, XAVC HS 4K and XAVC S 4K")
 # 2026-11-21: step 2 for a camera set to PAL: the same design moved to drive mode 0x880, which PAL uses for full-frame 4K 25p, with the
@@ -225,6 +233,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.set_defaults(hs_only=False, with_xavc_s=False, test=None, lcd32=False, cycle=False)
     ap.add_argument("--real57", action="store_true", help="the real 5760x3840 state (F906): first scaler 5760x3840 (og57n_v1), XAVC HS 4K at 24p, with the rear-screen steps")
+    ap.add_argument("--old-lcd", action="store_true", help="use the rear-screen steps as they were before 2026-11-21 (lcdfill_v1, lcdcycle_v5: proven, but no focus frames on the rear screen, F966)")
     ap.add_argument("--no-cycle", action="store_true", help="leave out the C3 anamorphic preview cycle (step 6): C3 keeps its own function in movie mode")
     ap.add_argument("--no-lcd32", action="store_true", help="leave out the rear-screen step: live view squeezed in a 16:9 letterbox, as before 2026-11-19")
     ap.add_argument("--ntsc", action="store_true", help="the camera's NTSC/PAL Selector is on NTSC (24p); without --ntsc or --pal the script asks")
@@ -239,15 +248,17 @@ def main():
     if args.lcd32 and LCD_32 not in steps:
         steps = steps + [LCD_32]
     if args.cycle and args.no_lcd32:
-        raise SystemExit("--cycle needs the rear-screen step (lcdfill_v1): do not combine it with --no-lcd32. Nothing was sent.")
+        raise SystemExit("--cycle needs the rear-screen step (lcdfill_v2): do not combine it with --no-lcd32. Nothing was sent.")
     if args.no_lcd32:
-        steps = [x for x in steps if x not in (LCD_32, CYCLE)]           # the cycle starts from lcdfill_v1's 3:2 state
+        steps = [x for x in steps if x not in (LCD_32, CYCLE)]           # the cycle starts from lcdfill's 3:2 state
     if args.no_cycle:
         steps = [x for x in steps if x != CYCLE]
     if args.cycle and CYCLE not in steps:
         if LCD_32 not in steps:
             steps = steps + [LCD_32]
         steps = steps + [CYCLE]
+    if args.old_lcd:
+        steps = [{LCD_32: LCD_32_V1, CYCLE: CYCLE_V5}.get(x, x) for x in steps]
     if args.ntsc and args.pal:
         raise SystemExit("--ntsc and --pal do not go together. Nothing was sent.")
     if args.dry_run or args.selftest:
@@ -270,7 +281,7 @@ def main():
     say("  1. The camera is set to %s: in the menu, set File Format to %s and the frame rate to %s." % (family, formats, rate))
     say("  2. Cold boot the camera: power off, battery out for 10 seconds, battery in.")
     say("  3. Turn it on with the mode dial on STILLS (not movie).")
-    if CYCLE in steps:
+    if CYCLE in steps or CYCLE_V5 in steps:
         say("     For the C3 cycle nothing needs setting: in movie mode the C3 key itself is taken over (whatever it is")
         say("     assigned to); in stills C3 works as before.")
     say("  4. Connect the USB cable. USB Connection Mode: Mass Storage.")
@@ -331,9 +342,12 @@ def main():
     say("=" * 78)
     say("Now:")
     say("  1. Unplug the USB cable. Do not power the camera off.")
-    if LCD_32 in steps:
+    if LCD_32 in steps or LCD_32_V1 in steps:
         say("  2. Turn the dial to movie. The rear screen shows the full-height picture at 3:2, filling the screen.")
-    if CYCLE in steps:
+    if LCD_32 in steps:
+        say("     The focus frames are drawn on the rear screen (since 2026-11-21). For a tracking box on a touched subject,")
+        say("     set the camera's touch function to Touch Tracking.")
+    if CYCLE in steps or CYCLE_V5 in steps:
         say("     Press C3 to step the rear screen 3:2 -> 2:1 -> 2.4:1 -> 3:2 (say what")
         say("     each press shows). Avoid touching the screen or other buttons while the steps run.")
     else:

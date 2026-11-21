@@ -1,0 +1,72 @@
+{
+ "design": "lcdfill_v2",
+ "sites": [
+  {
+   "ram_address": "0x1e4bcc",
+   "old": "03000000",
+   "new": "00000000",
+   "note": "VDF fit mode for a 16:9 picture on a 3:2 panel (table for picture code 2, entry for panel code 1): 3 letterbox to 0 fill. The rear screen then shows the squeezed 16:9 live view over the whole 3:2 panel, i.e. stretched x32/27 vertically"
+  },
+  {
+   "ram_address": "0xd7b5a0",
+   "old": "00002600",
+   "new": "00000000",
+   "note": "cpActAfWindow (focus area frames), check 0x59f568 -> 0x128438: expected live-view rectangle for a 16:9 picture on the rear panel, x, y: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  },
+  {
+   "ram_address": "0xd7b5a4",
+   "old": "80029401",
+   "new": "8002e001",
+   "note": "cpActAfWindow (focus area frames), check 0x59f568 -> 0x128438: expected live-view rectangle for a 16:9 picture on the rear panel, w, h: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  },
+  {
+   "ram_address": "0xd7b618",
+   "old": "00002600",
+   "new": "00000000",
+   "note": "cpActAfWindowRemoteSend (the same frames for a remote viewer), check 0x5a53c2 -> 0x128d60: expected live-view rectangle for a 16:9 picture on the rear panel, x, y: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  },
+  {
+   "ram_address": "0xd7b61c",
+   "old": "80029401",
+   "new": "8002e001",
+   "note": "cpActAfWindowRemoteSend (the same frames for a remote viewer), check 0x5a53c2 -> 0x128d60: expected live-view rectangle for a 16:9 picture on the rear panel, w, h: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  },
+  {
+   "ram_address": "0xd7b690",
+   "old": "00002600",
+   "new": "00000000",
+   "note": "cpActTrackingFrame (tracking and face frames), check 0x1297e8: expected live-view rectangle for a 16:9 picture on the rear panel, x, y: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  },
+  {
+   "ram_address": "0xd7b694",
+   "old": "80029401",
+   "new": "8002e001",
+   "note": "cpActTrackingFrame (tracking and face frames), check 0x1297e8: expected live-view rectangle for a 16:9 picture on the rear panel, w, h: stock letterbox (0, 38, 640, 404) to the whole panel (0, 0, 640, 480)"
+  }
+ ],
+ "summary": {
+  "sites": 7,
+  "bytes": 28,
+  "panel": "rear LCD, 3:2 (panel code 1)",
+  "picture": "16:9 live view (picture code 2)",
+  "fit_stock": "letterbox (3)",
+  "fit_new": "fill (0)",
+  "frame_rectangle_stock": [
+   0,
+   38,
+   640,
+   404
+  ],
+  "frame_rectangle_new": [
+   0,
+   0,
+   640,
+   480
+  ],
+  "replaces": "lcdfill_v1, with which no focus frame is drawn on the rear screen (F966)",
+  "goes_with": [
+   "the open-gate state",
+   "lcdcycle_v6"
+  ]
+ }
+}
