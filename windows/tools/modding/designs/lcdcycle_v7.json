@@ -1,5 +1,5 @@
 {
- "design": "lcdcycle_v6",
+ "design": "lcdcycle_v7",
  "patches": [
   {
    "binary": "appFw.so",
@@ -77,7 +77,7 @@
    "file_off": "0x50bbad0",
    "va": "0x50bbad0",
    "old": "00000000000000000000000000000000",
-   "new": "a10a00541f2003d5c1200010e0031faa",
+   "new": "610c00541f2003d5c11f0010e0031faa",
    "code": true,
    "note": "cave bytes 0x50bbad0-0x50bbae0"
   },
@@ -87,7 +87,7 @@
    "file_off": "0x50bbae0",
    "va": "0x50bbae0",
    "old": "00000000000000000000000000000000",
-   "new": "f06a1997f40300aa0100009021003c91",
+   "new": "f06a1997f40300aa0100009021803b91",
    "code": true,
    "note": "cave bytes 0x50bbae0-0x50bbaf0"
   },
@@ -107,7 +107,7 @@
    "file_off": "0x50bbb00",
    "va": "0x50bbb00",
    "old": "00000000000000000000000000000000",
-   "new": "21343c91e0031faae66a1997e80300aa",
+   "new": "21b43b91e0031faae66a1997e80300aa",
    "code": true,
    "note": "cave bytes 0x50bbb00-0x50bbb10"
   },
@@ -117,7 +117,7 @@
    "file_off": "0x50bbb10",
    "va": "0x50bbb10",
    "old": "00000000000000000000000000000000",
-   "new": "20008052e82700f9140900b4f30800b4",
+   "new": "20008052e82700f9540c00b4330c00b4",
    "code": true,
    "note": "cave bytes 0x50bbb10-0x50bbb20"
   },
@@ -127,7 +127,7 @@
    "file_off": "0x50bbb20",
    "va": "0x50bbb20",
    "old": "00000000000000000000000000000000",
-   "new": "c80800b4e113019100008252ff4700b9",
+   "new": "080c00b4e113019100008252ff4700b9",
    "code": true,
    "note": "cave bytes 0x50bbb20-0x50bbb30"
   },
@@ -137,7 +137,7 @@
    "file_off": "0x50bbb30",
    "va": "0x50bbb30",
    "old": "00000000000000000000000000000000",
-   "new": "80023fd6e02b00f9e00700b408044091",
+   "new": "80023fd6e02b00f9200b00b408044091",
    "code": true,
    "note": "cave bytes 0x50bbb30-0x50bbb40"
   },
@@ -147,7 +147,7 @@
    "file_off": "0x50bbb40",
    "va": "0x50bbb40",
    "old": "00000000000000000000000000000000",
-   "new": "aa00c0d2e90300aa1f010aeb08070054",
+   "new": "aa00c0d2e90300aa1f010aebf9031f2a",
    "code": true,
    "note": "cave bytes 0x50bbb40-0x50bbb50"
   },
@@ -157,7 +157,7 @@
    "file_off": "0x50bbb50",
    "va": "0x50bbb50",
    "old": "00000000000000000000000000000000",
-   "new": "28fd62d3c80600b428154092880600b5",
+   "new": "c808005428fd62d3880800b428154092",
    "code": true,
    "note": "cave bytes 0x50bbb50-0x50bbb60"
   },
@@ -167,7 +167,7 @@
    "file_off": "0x50bbb60",
    "va": "0x50bbb60",
    "old": "00000000000000000000000000000000",
-   "new": "600c8092420082520100009021783c91",
+   "new": "480800b5600c80924200825201000090",
    "code": true,
    "note": "cave bytes 0x50bbb60-0x50bbb70"
   },
@@ -177,7 +177,7 @@
    "file_off": "0x50bbb70",
    "va": "0x50bbb70",
    "old": "00000000000000000000000000000000",
-   "new": "080780520202a072010000d48005f8b7",
+   "new": "21003c91080780520202a072010000d4",
    "code": true,
    "note": "cave bytes 0x50bbb70-0x50bbb80"
   },
@@ -187,7 +187,7 @@
    "file_off": "0x50bbb80",
    "va": "0x50bbb80",
    "old": "00000000000000000000000000000000",
-   "new": "2a2d4092e8ff8352f50300aae40300aa",
+   "new": "2007f8b72a2d4092e8ff8352f40300aa",
    "code": true,
    "note": "cave bytes 0x50bbb80-0x50bbb90"
   },
@@ -197,7 +197,7 @@
    "file_off": "0x50bbb90",
    "va": "0x50bbb90",
    "old": "00000000000000000000000000000000",
-   "new": "e0031faa5801080bc81b805225cd7492",
+   "new": "e40300aae0031faa5801080bc81b8052",
    "code": true,
    "note": "cave bytes 0x50bbb90-0x50bbba0"
   },
@@ -207,7 +207,7 @@
    "file_off": "0x50bbba0",
    "va": "0x50bbba0",
    "old": "00000000000000000000000000000000",
-   "new": "010774926200805223008052010000d4",
+   "new": "25cd7492010774926200805223008052",
    "code": true,
    "note": "cave bytes 0x50bbba0-0x50bbbb0"
   },
@@ -217,7 +217,7 @@
    "file_off": "0x50bbbb0",
    "va": "0x50bbbb0",
    "old": "00000000000000000000000000000000",
-   "new": "08008292f4031f2a390080521f0008eb",
+   "new": "010000d408008292f9031f2a1f0008eb",
    "code": true,
    "note": "cave bytes 0x50bbbb0-0x50bbbc0"
   },
@@ -227,7 +227,7 @@
    "file_off": "0x50bbbc0",
    "va": "0x50bbbc0",
    "old": "00000000000000000000000000000000",
-   "new": "28050054f60300aa082c4092c80400b5",
+   "new": "68040054f50300aa082c4092080400b5",
    "code": true,
    "note": "cave bytes 0x50bbbc0-0x50bbbd0"
   },
@@ -237,7 +237,7 @@
    "file_off": "0x50bbbd0",
    "va": "0x50bbbd0",
    "old": "00000000000000000000000000000000",
-   "new": "c8020a8be02301912100805202018052",
+   "new": "a8020a8be02301912100805202018052",
    "code": true,
    "note": "cave bytes 0x50bbbd0-0x50bbbe0"
   },
@@ -247,7 +247,7 @@
    "file_off": "0x50bbbe0",
    "va": "0x50bbbe0",
    "old": "00000000000000000000000000000000",
-   "new": "23018052e82f00f93900805247000094",
+   "new": "23018052e82f00f93f0000941f0c0071",
    "code": true,
    "note": "cave bytes 0x50bbbe0-0x50bbbf0"
   },
@@ -257,7 +257,7 @@
    "file_off": "0x50bbbf0",
    "va": "0x50bbbf0",
    "old": "00000000000000000000000000000000",
-   "new": "1f080071e8020054f703002af407801a",
+   "new": "48020054f703002af607801ae0230191",
    "code": true,
    "note": "cave bytes 0x50bbbf0-0x50bbc00"
   },
@@ -267,7 +267,7 @@
    "file_off": "0x50bbc00",
    "va": "0x50bbc00",
    "old": "00000000000000000000000000000000",
-   "new": "e0230191e1031f2ae203172ae303142a",
+   "new": "e1031f2ae203172ae303162a36000094",
    "code": true,
    "note": "cave bytes 0x50bbc00-0x50bbc10"
   },
@@ -277,7 +277,7 @@
    "file_off": "0x50bbc10",
    "va": "0x50bbc10",
    "old": "00000000000000000000000000000000",
-   "new": "3e0000941f2400712105005439008052",
+   "new": "1f240071f9031f2a20010054e0230191",
    "code": true,
    "note": "cave bytes 0x50bbc10-0x50bbc20"
   },
@@ -287,7 +287,7 @@
    "file_off": "0x50bbc20",
    "va": "0x50bbc20",
    "old": "00000000000000000000000000000000",
-   "new": "0d000014e0031f2a04000014e04740b9",
+   "new": "21008052e203172ae303162a2e000094",
    "code": true,
    "note": "cave bytes 0x50bbc20-0x50bbc30"
   },
@@ -297,7 +297,7 @@
    "file_off": "0x50bbc30",
    "va": "0x50bbc30",
    "old": "00000000000000000000000000000000",
-   "new": "60023fd620008052f44f49a9f65748a9",
+   "new": "1f24007121040054f9031f2ae00315aa",
    "code": true,
    "note": "cave bytes 0x50bbc30-0x50bbc40"
   },
@@ -307,7 +307,7 @@
    "file_off": "0x50bbc40",
    "va": "0x50bbc40",
    "old": "00000000000000000000000000000000",
-   "new": "f85f47a9fe6746a9ff830291c0035fd6",
+   "new": "01077492e81a8052010000d4e00314aa",
    "code": true,
    "note": "cave bytes 0x50bbc40-0x50bbc50"
   },
@@ -317,7 +317,7 @@
    "file_off": "0x50bbc50",
    "va": "0x50bbc50",
    "old": "00000000000000000000000000000000",
-   "new": "f4031f2ae00316aa01077492e81a8052",
+   "new": "28078052010000d404000014e0031f2a",
    "code": true,
    "note": "cave bytes 0x50bbc50-0x50bbc60"
   },
@@ -327,7 +327,7 @@
    "file_off": "0x50bbc60",
    "va": "0x50bbc60",
    "old": "00000000000000000000000000000000",
-   "new": "010000d4e00315aa28078052010000d4",
+   "new": "10000014f9031f2ae04740b960023fd6",
    "code": true,
    "note": "cave bytes 0x50bbc60-0x50bbc70"
   },
@@ -337,7 +337,7 @@
    "file_off": "0x50bbc70",
    "va": "0x50bbc70",
    "old": "00000000000000000000000000000000",
-   "new": "e04740b960023fd6f9fd0737e8031faa",
+   "new": "79010034e8031faae91300913f6928b8",
    "code": true,
    "note": "cave bytes 0x50bbc70-0x50bbc80"
   },
@@ -347,7 +347,7 @@
    "file_off": "0x50bbc80",
    "va": "0x50bbc80",
    "old": "00000000000000000000000000000000",
-   "new": "e95300913f6928b8081100911fc100f1",
+   "new": "081100911f0101f1a1ffff54e8130091",
    "code": true,
    "note": "cave bytes 0x50bbc80-0x50bbc90"
   },
@@ -357,7 +357,7 @@
    "file_off": "0x50bbc90",
    "va": "0x50bbc90",
    "old": "00000000000000000000000000000000",
-   "new": "a1ffff54ff0700b9ff0b00b9ff0f00b9",
+   "new": "e013009101c100911176939720008052",
    "code": true,
    "note": "cave bytes 0x50bbc90-0x50bbca0"
   },
@@ -367,7 +367,7 @@
    "file_off": "0x50bbca0",
    "va": "0x50bbca0",
    "old": "00000000000000000000000000000000",
-   "new": "ff1300b90efc6097140000b9e0530091",
+   "new": "f44f49a9f65748a9f85f47a9fe6746a9",
    "code": true,
    "note": "cave bytes 0x50bbca0-0x50bbcb0"
   },
@@ -377,7 +377,7 @@
    "file_off": "0x50bbcb0",
    "va": "0x50bbcb0",
    "old": "00000000000000000000000000000000",
-   "new": "e11300910a769397dfffff17e0230191",
+   "new": "ff830291c0035fd657008052e0230191",
    "code": true,
    "note": "cave bytes 0x50bbcb0-0x50bbcc0"
   },
@@ -387,7 +387,7 @@
    "file_off": "0x50bbcc0",
    "va": "0x50bbcc0",
    "old": "00000000000000000000000000000000",
-   "new": "21008052e203172ae303142a39008052",
+   "new": "e103172a02018052e303162a06000094",
    "code": true,
    "note": "cave bytes 0x50bbcc0-0x50bbcd0"
   },
@@ -397,7 +397,7 @@
    "file_off": "0x50bbcd0",
    "va": "0x50bbcd0",
    "old": "00000000000000000000000000000000",
-   "new": "0e0000941f240071e0fbff5457008052",
+   "new": "f7060011ff16007121ffff5439008052",
    "code": true,
    "note": "cave bytes 0x50bbcd0-0x50bbce0"
   },
@@ -407,7 +407,7 @@
    "file_off": "0x50bbce0",
    "va": "0x50bbce0",
    "old": "00000000000000000000000000000000",
-   "new": "e0230191e103172a02018052e303142a",
+   "new": "d7ffff17fd7bbaa9fc6f01a9fa6702a9",
    "code": true,
    "note": "cave bytes 0x50bbce0-0x50bbcf0"
   },
@@ -417,7 +417,7 @@
    "file_off": "0x50bbcf0",
    "va": "0x50bbcf0",
    "old": "00000000000000000000000000000000",
-   "new": "06000094f7060011ff16007121ffff54",
+   "new": "f85f03a9f65704a9f44f05a988018052",
    "code": true,
    "note": "cave bytes 0x50bbcf0-0x50bbd00"
   },
@@ -427,7 +427,7 @@
    "file_off": "0x50bbd00",
    "va": "0x50bbd00",
    "old": "00000000000000000000000000000000",
-   "new": "f9031f2ad4ffff17fd7bbaa9fc6f01a9",
+   "new": "1900009039333c912864a89bf703012a",
    "code": true,
    "note": "cave bytes 0x50bbd00-0x50bbd10"
   },
@@ -437,7 +437,7 @@
    "file_off": "0x50bbd10",
    "va": "0x50bbd10",
    "old": "00000000000000000000000000000000",
-   "new": "fa6702a9f85f03a9f65704a9f44f05a9",
+   "new": "1a0840f9f303032af40300aaf603022a",
    "code": true,
    "note": "cave bytes 0x50bbd10-0x50bbd20"
   },
@@ -447,7 +447,7 @@
    "file_off": "0x50bbd20",
    "va": "0x50bbd20",
    "old": "00000000000000000000000000000000",
-   "new": "880180521900009039a33c912864a89b",
+   "new": "150140b91b2140391c2540391d114039",
    "code": true,
    "note": "cave bytes 0x50bbd20-0x50bbd30"
   },
@@ -457,7 +457,7 @@
    "file_off": "0x50bbd30",
    "va": "0x50bbd30",
    "old": "00000000000000000000000000000000",
-   "new": "f703012a1a0840f9f303032af40300aa",
+   "new": "181d4039e10315aa5a00009420010034",
    "code": true,
    "note": "cave bytes 0x50bbd30-0x50bbd40"
   },
@@ -467,7 +467,7 @@
    "file_off": "0x50bbd40",
    "va": "0x50bbd40",
    "old": "00000000000000000000000000000000",
-   "new": "f603022a150140b91b2140391c254039",
+   "new": "20018052f44f45a9f65744a9f85f43a9",
    "code": true,
    "note": "cave bytes 0x50bbd40-0x50bbd50"
   },
@@ -477,7 +477,7 @@
    "file_off": "0x50bbd50",
    "va": "0x50bbd50",
    "old": "00000000000000000000000000000000",
-   "new": "1d114039181d4039e10315aa5a000094",
+   "new": "fa6742a9fc6f41a9fd7bc6a8c0035fd6",
    "code": true,
    "note": "cave bytes 0x50bbd50-0x50bbd60"
   },
@@ -487,7 +487,7 @@
    "file_off": "0x50bbd60",
    "va": "0x50bbd60",
    "old": "00000000000000000000000000000000",
-   "new": "2001003420018052f44f45a9f65744a9",
+   "new": "e903172a88018052570b1d8b2865a89b",
    "code": true,
    "note": "cave bytes 0x50bbd60-0x50bbd70"
   },
@@ -497,7 +497,7 @@
    "file_off": "0x50bbd70",
    "va": "0x50bbd70",
    "old": "00000000000000000000000000000000",
-   "new": "f85f43a9fa6742a9fc6f41a9fd7bc6a8",
+   "new": "0a1540390800009008213d910b091b8b",
    "code": true,
    "note": "cave bytes 0x50bbd70-0x50bbd80"
   },
@@ -507,7 +507,7 @@
    "file_off": "0x50bbd80",
    "va": "0x50bbd80",
    "old": "00000000000000000000000000000000",
-   "new": "c0035fd6e903172a88018052570b1d8b",
+   "new": "08091c8b5f0500714a859f1a6b110091",
    "code": true,
    "note": "cave bytes 0x50bbd80-0x50bbd90"
   },
@@ -517,7 +517,7 @@
    "file_off": "0x50bbd90",
    "va": "0x50bbd90",
    "old": "00000000000000000000000000000000",
-   "new": "2865a89b0a1540390800009008913d91",
+   "new": "6cc19fb8ec7a6cb86d0140b99f010d6b",
    "code": true,
    "note": "cave bytes 0x50bbd90-0x50bbda0"
   },
@@ -527,7 +527,7 @@
    "file_off": "0x50bbda0",
    "va": "0x50bbda0",
    "old": "00000000000000000000000000000000",
-   "new": "0b091b8b08091c8b5f0500714a859f1a",
+   "new": "01fdff544a0500f16b21009121ffff54",
    "code": true,
    "note": "cave bytes 0x50bbda0-0x50bbdb0"
   },
@@ -537,7 +537,7 @@
    "file_off": "0x50bbdb0",
    "va": "0x50bbdb0",
    "old": "00000000000000000000000000000000",
-   "new": "6b1100916cc19fb8ec7a6cb86d0140b9",
+   "new": "8b0180521f0700710c7f7ed32965ab9b",
    "code": true,
    "note": "cave bytes 0x50bbdb0-0x50bbdc0"
   },
@@ -547,7 +547,7 @@
    "file_off": "0x50bbdc0",
    "va": "0x50bbdc0",
    "old": "00000000000000000000000000000000",
-   "new": "9f010d6b01fdff544a0500f16b210091",
+   "new": "ed03162a2e018052ef0308aa2b194039",
    "code": true,
    "note": "cave bytes 0x50bbdc0-0x50bbdd0"
   },
@@ -557,7 +557,7 @@
    "file_off": "0x50bbdd0",
    "va": "0x50bbdd0",
    "old": "00000000000000000000000000000000",
-   "new": "21ffff548b0180521f0700710c7f7ed3",
+   "new": "09879f1adf220071f10309aaf20317aa",
    "code": true,
    "note": "cave bytes 0x50bbdd0-0x50bbde0"
   },
@@ -567,7 +567,7 @@
    "file_off": "0x50bbde0",
    "va": "0x50bbde0",
    "old": "00000000000000000000000000000000",
-   "new": "2965ab9bed03162a2e018052ef0308aa",
+   "new": "44114dfae0030faaf0179f1a414640b8",
    "code": true,
    "note": "cave bytes 0x50bbde0-0x50bbdf0"
   },
@@ -577,7 +577,7 @@
    "file_off": "0x50bbdf0",
    "va": "0x50bbdf0",
    "old": "00000000000000000000000000000000",
-   "new": "2b19403909879f1adf220071f10309aa",
+   "new": "024440b83f00026b10029f1a310600f1",
    "code": true,
    "note": "cave bytes 0x50bbdf0-0x50bbe00"
   },
@@ -587,7 +587,7 @@
    "file_off": "0x50bbe00",
    "va": "0x50bbe00",
    "old": "00000000000000000000000000000000",
-   "new": "f20317aa44114dfae0030faaf0179f1a",
+   "new": "61ffff541f020071ef010c8bc0018a1a",
    "code": true,
    "note": "cave bytes 0x50bbe00-0x50bbe10"
   },
@@ -597,7 +597,7 @@
    "file_off": "0x50bbe10",
    "va": "0x50bbe10",
    "old": "00000000000000000000000000000000",
-   "new": "414640b8024440b83f00026b10029f1a",
+   "new": "4a0500911f24007142014bfac3fdff54",
    "code": true,
    "note": "cave bytes 0x50bbe10-0x50bbe20"
   },
@@ -607,7 +607,7 @@
    "file_off": "0x50bbe20",
    "va": "0x50bbe20",
    "old": "00000000000000000000000000000000",
-   "new": "310600f161ffff541f020071ef010c8b",
+   "new": "7f26007100f9ff541f240071c0f8ff54",
    "code": true,
    "note": "cave bytes 0x50bbe20-0x50bbe30"
   },
@@ -617,7 +617,7 @@
    "file_off": "0x50bbe30",
    "va": "0x50bbe30",
    "old": "00000000000000000000000000000000",
-   "new": "c0018a1a4a0500911f24007142014bfa",
+   "new": "0a7f131b16492a8be80317aaea0316aa",
    "code": true,
    "note": "cave bytes 0x50bbe30-0x50bbe40"
   },
@@ -627,7 +627,7 @@
    "file_off": "0x50bbe40",
    "va": "0x50bbe40",
    "old": "00000000000000000000000000000000",
-   "new": "c3fdff547f26007100f9ff541f240071",
+   "new": "4b4540b8290500f10b4500b8a1ffff54",
    "code": true,
    "note": "cave bytes 0x50bbe40-0x50bbe50"
   },
@@ -637,7 +637,7 @@
    "file_off": "0x50bbe50",
    "va": "0x50bbe50",
    "old": "00000000000000000000000000000000",
-   "new": "c0f8ff540a7f131b16492a8be80317aa",
+   "new": "880640a920008052e20315aa03088052",
    "code": true,
    "note": "cave bytes 0x50bbe50-0x50bbe60"
   },
@@ -647,7 +647,7 @@
    "file_off": "0x50bbe60",
    "va": "0x50bbe60",
    "old": "00000000000000000000000000000000",
-   "new": "ea0316aa4b4540b8290500f10b4500b8",
+   "new": "00013fd6e0f6ff35e00314aae10315aa",
    "code": true,
    "note": "cave bytes 0x50bbe60-0x50bbe70"
   },
@@ -657,7 +657,7 @@
    "file_off": "0x50bbe70",
    "va": "0x50bbe70",
    "old": "00000000000000000000000000000000",
-   "new": "a1ffff54880640a920008052e20315aa",
+   "new": "0c00009460f6ff351f07007108879f1a",
    "code": true,
    "note": "cave bytes 0x50bbe70-0x50bbe80"
   },
@@ -667,7 +667,7 @@
    "file_off": "0x50bbe80",
    "va": "0x50bbe80",
    "old": "00000000000000000000000000000000",
-   "new": "0308805200013fd6e0f6ff35e00314aa",
+   "new": "e94640b8ca4640b83f010a6ba1f5ff54",
    "code": true,
    "note": "cave bytes 0x50bbe80-0x50bbe90"
   },
@@ -677,7 +677,7 @@
    "file_off": "0x50bbe90",
    "va": "0x50bbe90",
    "old": "00000000000000000000000000000000",
-   "new": "e10315aa0c00009460f6ff351f070071",
+   "new": "080500f161ffff54e003132aaaffff17",
    "code": true,
    "note": "cave bytes 0x50bbe90-0x50bbea0"
   },
@@ -687,7 +687,7 @@
    "file_off": "0x50bbea0",
    "va": "0x50bbea0",
    "old": "00000000000000000000000000000000",
-   "new": "08879f1ae94640b8ca4640b83f010a6b",
+   "new": "090840f9e8031faaeaeb03322a6928b8",
    "code": true,
    "note": "cave bytes 0x50bbea0-0x50bbeb0"
   },
@@ -697,7 +697,7 @@
    "file_off": "0x50bbeb0",
    "va": "0x50bbeb0",
    "old": "00000000000000000000000000000000",
-   "new": "a1f5ff54080500f161ffff54e003132a",
+   "new": "081100911f0101f1a1ffff54040840a9",
    "code": true,
    "note": "cave bytes 0x50bbeb0-0x50bbec0"
   },
@@ -707,7 +707,7 @@
    "file_off": "0x50bbec0",
    "va": "0x50bbec0",
    "old": "00000000000000000000000000000000",
-   "new": "aaffff17090840f9e8031faaeaeb0332",
+   "new": "e0031f2a0308805280001fd600000000",
    "code": true,
    "note": "cave bytes 0x50bbec0-0x50bbed0"
   },
@@ -717,7 +717,7 @@
    "file_off": "0x50bbed0",
    "va": "0x50bbed0",
    "old": "00000000000000000000000000000000",
-   "new": "2a6928b8081100911f0101f1a1ffff54",
+   "new": "5f5a39646d6d5f616c6c6f636a506a00",
    "code": true,
    "note": "cave bytes 0x50bbed0-0x50bbee0"
   },
@@ -727,7 +727,7 @@
    "file_off": "0x50bbee0",
    "va": "0x50bbee0",
    "old": "00000000000000000000000000000000",
-   "new": "040840a9e0031f2a0308805280001fd6",
+   "new": "5f5a38646d6d5f667265656a0073656e",
    "code": true,
    "note": "cave bytes 0x50bbee0-0x50bbef0"
   },
@@ -737,7 +737,7 @@
    "file_off": "0x50bbef0",
    "va": "0x50bbef0",
    "old": "00000000000000000000000000000000",
-   "new": "5f5a39646d6d5f616c6c6f636a506a00",
+   "new": "5f646d615f7472616e73666572000000",
    "code": true,
    "note": "cave bytes 0x50bbef0-0x50bbf00"
   },
@@ -747,7 +747,7 @@
    "file_off": "0x50bbf00",
    "va": "0x50bbf00",
    "old": "00000000000000000000000000000000",
-   "new": "5f5a38646d6d5f667265656a0073656e",
+   "new": "2f6465762f6d656d00000000c04b1e00",
    "code": true,
    "note": "cave bytes 0x50bbf00-0x50bbf10"
   },
@@ -757,7 +757,7 @@
    "file_off": "0x50bbf10",
    "va": "0x50bbf10",
    "old": "00000000000000000000000000000000",
-   "new": "5f646d615f7472616e73666572002f64",
+   "new": "0304040100080000c04d1e0001030402",
    "code": true,
    "note": "cave bytes 0x50bbf10-0x50bbf20"
   },
@@ -767,7 +767,7 @@
    "file_off": "0x50bbf20",
    "va": "0x50bbf20",
    "old": "00000000000000000000000000000000",
-   "new": "65762f6d656d0000c04b1e0003040301",
+   "new": "0c12000080b5d700080405021a220000",
    "code": true,
    "note": "cave bytes 0x50bbf20-0x50bbf30"
   },
@@ -777,7 +777,7 @@
    "file_off": "0x50bbf30",
    "va": "0x50bbf30",
    "old": "00000000000000000000000000000000",
-   "new": "00080000c04d1e00010303020b110000",
+   "new": "00b6d700060405021a22000080b6d700",
    "code": true,
    "note": "cave bytes 0x50bbf30-0x50bbf40"
   },
@@ -787,7 +787,7 @@
    "file_off": "0x50bbf40",
    "va": "0x50bbf40",
    "old": "00000000000000000000000000000000",
-   "new": "80b5d70008040402171f000000b6d700",
+   "new": "040405021a220000fdffffff38bf0320",
    "code": true,
    "note": "cave bytes 0x50bbf40-0x50bbf50"
   },
@@ -797,7 +797,7 @@
    "file_off": "0x50bbf50",
    "va": "0x50bbf50",
    "old": "00000000000000000000000000000000",
-   "new": "06040402171f000080b6d70004040402",
+   "new": "feffffff704700bfffffffff03000000",
    "code": true,
    "note": "cave bytes 0x50bbf50-0x50bbf60"
   },
@@ -807,7 +807,7 @@
    "file_off": "0x50bbf60",
    "va": "0x50bbf60",
    "old": "00000000000000000000000000000000",
-   "new": "171f0000fdffffff38bf0320feffffff",
+   "new": "01000000000000000000000003000000",
    "code": true,
    "note": "cave bytes 0x50bbf60-0x50bbf70"
   },
@@ -817,7 +817,7 @@
    "file_off": "0x50bbf70",
    "va": "0x50bbf70",
    "old": "00000000000000000000000000000000",
-   "new": "704700bfffffffff0300000001000000",
+   "new": "0300000003000000ffffffff03200be0",
    "code": true,
    "note": "cave bytes 0x50bbf70-0x50bbf80"
   },
@@ -827,7 +827,7 @@
    "file_off": "0x50bbf80",
    "va": "0x50bbf80",
    "old": "00000000000000000000000000000000",
-   "new": "00000000000000000300000003000000",
+   "new": "0200000001204ff003000000010e03e0",
    "code": true,
    "note": "cave bytes 0x50bbf80-0x50bbf90"
   },
@@ -837,7 +837,7 @@
    "file_off": "0x50bbf90",
    "va": "0x50bbf90",
    "old": "00000000000000000000000000000000",
-   "new": "ffffffff03200be00200000001204ff0",
+   "new": "4ff0090e102007e04ff0010e022007e0",
    "code": true,
    "note": "cave bytes 0x50bbf90-0x50bbfa0"
   },
@@ -847,7 +847,7 @@
    "file_off": "0x50bbfa0",
    "va": "0x50bbfa0",
    "old": "00000000000000000000000000000000",
-   "new": "03000000010e03e04ff0090e102007e0",
+   "new": "4ff0040e092007e04ff0050e0c2007e0",
    "code": true,
    "note": "cave bytes 0x50bbfa0-0x50bbfb0"
   },
@@ -857,7 +857,7 @@
    "file_off": "0x50bbfb0",
    "va": "0x50bbfb0",
    "old": "00000000000000000000000000000000",
-   "new": "4ff0010e022007e04ff0050e0c2007e0",
+   "new": "feffffff6b000000ffffffffaa01e001",
    "code": true,
    "note": "cave bytes 0x50bbfb0-0x50bbfc0"
   },
@@ -867,7 +867,7 @@
    "file_off": "0x50bbfc0",
    "va": "0x50bbfc0",
    "old": "00000000000000000000000000000000",
-   "new": "feffffff6b000000ffffffffaa01e001",
+   "new": "02000000000032000300000080027c01",
    "code": true,
    "note": "cave bytes 0x50bbfc0-0x50bbfd0"
   },
@@ -877,7 +877,7 @@
    "file_off": "0x50bbfd0",
    "va": "0x50bbfd0",
    "old": "00000000000000000000000000000000",
-   "new": "02000000000032000300000080027c01",
+   "new": "000000008002e00100003c0080026801",
    "code": true,
    "note": "cave bytes 0x50bbfd0-0x50bbfe0"
   },
@@ -887,7 +887,7 @@
    "file_off": "0x50bbfe0",
    "va": "0x50bbfe0",
    "old": "00000000000000000000000000000000",
-   "new": "000000008002e00100003c0080026801",
+   "new": "000050008002400100005a0080022c01",
    "code": true,
    "note": "cave bytes 0x50bbfe0-0x50bbff0"
   },
@@ -897,7 +897,7 @@
    "file_off": "0x50bbff0",
    "va": "0x50bbff0",
    "old": "00000000000000000000000000000000",
-   "new": "00005a0080022c010000260080029401",
+   "new": "00002600800294010000000000000000",
    "code": true,
    "note": "cave bytes 0x50bbff0-0x50bc000"
   },
