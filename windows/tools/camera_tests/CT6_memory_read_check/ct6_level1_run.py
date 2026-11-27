@@ -42,6 +42,10 @@ LIBS = {1: ("libJit_level1.so", "70b2695e917a19e05ca15f674f1260dab6e19f479bb963a
         # output buffers, toggle and debug copies, the camera context, the settings block with the setter arrays; F1053, request 79;
         # level 15's code, its own ranges; build/nrs_state.py decodes it)
         34: ("libJit_level34.so", "77e5ee9361aee599bc09a13f2e539c85c7486c3f151ec25ba9af4df2d99b0b0e"),
+        # level 35 is read-only: the display state (the memory the display driver, the display framework and the InfraBB video code address
+        # directly, 21 ranges, 491,520 bytes, and the camera core's context; F1067, modding/TONE12_TEST.md; level 15's code, its own
+        # ranges; build/disp_state.py holds the table and compares two reads)
+        35: ("libJit_level35.so", "ea28cd97907790a6ea7941c4e70f3d6eb75e2957990692868611111a3e087c6c"),
         # level 22 is read-only, main processor only: the VCD codec's clock word, its window registers and its program area (stage V2)
         22: ("libJit_level22.so", "ae7c5d2018a500ffbc1b157ecba8a6070d0ecb0f2a285d811f6b8bb29091c10d"),
         # level 26 is read-only, main processor only: the VCD program area as plain memory (F780), before any code of ours runs there
@@ -486,6 +490,69 @@ DESIGN_LIBS["nrsgate_v1"] = {16: ("libJit_level16_nrsgate_v1.so", "95d73dbf5be15
 # Replaces nrsgate_v1 behind open_gate_apply.py --spatial. 1 word, 1 guard. Not run.
 DESIGN_LIBS["nrsoff_v1"] = {16: ("libJit_level16_nrsoff_v1.so", "5ff2dc8e4988f00c9bf52b0d89416535705616c4506d6201a25ff9c4a608e199"),
                             17: ("libJit_level17_nrsoff_v1.so", "16d02878efff93f5a3f81dc36d521f9241e7b92a59318dc617326c5a455d641b")}
+# finecurve_v1 (2026-11-27, F1059, modding/TONE12_TEST.md stage 3, build/build_tone_words.py): the S-Log3 tone-curve source table the camera
+# uses in S-Log3 movie mode at ISO 800 (table 31, variant 6, 0xcb4cf0) becomes a window curve, four times steeper over the top of the range:
+# its 129 outputs and its maximum / minimum words. 131 words, 5 guards. Not run.
+DESIGN_LIBS["finecurve_v1"] = {16: ("libJit_level16_finecurve_v1.so", "131c8a1a1f654caa7226386f31b9da755c98416ec78e7ee177c16082b590acc4"),
+                               17: ("libJit_level17_finecurve_v1.so", "fadf6f6ccbc475e08ef75b9862c368d3658487ce769b7b17fa1185812e24e916")}
+# finecurve12_v1 (2026-11-27, after F1061): the same table with the window placed for vcd12_v5's 12-bit stream: fine code = 4 x S-Log3 code
+# - 1536 for S-Log3 codes 400 to 634, so the 12-bit file holds the 12-bit S-Log3 code itself. 131 words, 5 guards. Not run.
+DESIGN_LIBS["finecurve12_v1"] = {16: ("libJit_level16_finecurve12_v1.so", "d4edbf82283280ee8da4a8dc8f4f8d787cc756453331e7294605c32d6aa527fb"),
+                                 17: ("libJit_level17_finecurve12_v1.so", "e477c81424af0589d4b58352764a7d4d4dd0619e3c2f792063cf1bf7cdc08bd4")}
+# log12s_v1 (2026-11-27, after the S-I 4K run): the same table as a full-range S-shaped curve for the 12-bit stream: half of S-Log3's slope
+# below S-Log3 code 402, four times from 402 to 524, about four fifths above; nothing clipped. 131 words, 5 guards. Not run.
+DESIGN_LIBS["log12s_v1"] = {16: ("libJit_level16_log12s_v1.so", "db3e80e7bf039e7d3360e375bf91702d0d7020adef64589064f1eb35f070fcc5"),
+                            17: ("libJit_level17_log12s_v1.so", "efa2ae3639324e2f5abd8c620be9ea6f1b433390e96a7b23466aa03931e497f1")}
+# disp12_log12s_v1, disp12_fc12_v1 (2026-11-27, request 84's result, build/build_disp12.py): the display parameter block's table code 2
+# (Gamma Display Assist's table, output 0) becomes the assist-off set with the 12-bit curve undone, so that the assist shows a normal
+# S-Log3 picture while log12s_v1 / finecurve12_v1 is recorded. 89 words, 26 guards each; made from this camera's own block. Not run.
+DESIGN_LIBS["disp12_log12s_v1"] = {16: ("libJit_level16_disp12_log12s_v1.so", "50df64da9e06b2a7c9805224a6e9a576d11b73a9b5d18049eca42e63f6c1b83e"),
+                                   17: ("libJit_level17_disp12_log12s_v1.so", "573b43c8542485e81809a68fd8da449a4c5dd666009c609deca042cd19679aae")}
+DESIGN_LIBS["disp12_fc12_v1"] = {16: ("libJit_level16_disp12_fc12_v1.so", "72ece67287ed7c07ad5a89469ae75f22e6a86679582afa08d26252ada771e53f"),
+                                 17: ("libJit_level17_disp12_fc12_v1.so", "08286f2ed174a633f5ba8dba4aba4de3040f4c2bade053d439e2ad1f10182541")}
+# disp12_log12s_v2, disp12_fc12_v2 (2026-11-27, after request 85's first run): the same 89 words. The camera refused v1 at its guard on
+# the block's last 14 bytes ('the bytes at 0x01c6a04c are not as expected'): those are run-time values that differ between the state
+# the block was read in (dial on MOVIE) and the state it is written in (dial on STILLS). v2 guards stored data only: the assist-off
+# curves, which the camera accepted in that run, and the neighbours of the sites. 23 guards. Not run.
+DESIGN_LIBS["disp12_log12s_v2"] = {16: ("libJit_level16_disp12_log12s_v2.so", "629d12056303b31dd82c96feac59f886af020cb640623175e1228e5d3ff8b4a5"),
+                                   17: ("libJit_level17_disp12_log12s_v2.so", "75d5e66fb257a378fbee88783f3f95bc1398e52b71e1b4a504e16976c076e374")}
+DESIGN_LIBS["disp12_fc12_v2"] = {16: ("libJit_level16_disp12_fc12_v2.so", "8c0292814fb5fbb46cc184823655291a144203ea1cfe1c01b0d1a5401b74e98e"),
+                                 17: ("libJit_level17_disp12_fc12_v2.so", "e99a024e17430b28a4adc85cb53cdc2bc77ed456fc99c00d226a328da5e5fe63")}
+# log12s_v2 and disp12_log12s_v3 (2026-11-27, after request 85's second run): the full-range curve with its corners and top on the display
+# table's points (recorded codes 228.25, 721.0, 994.75 = display inputs 192, 768, 1088), and the screen table for it. With log12s_v1 the
+# upper corner lay between two display points and the screen showed a band there (the owner: 'some kind of banding in strong highlights';
+# contrast 0.57 to 2.86 times the right one around recorded code 709). 131 words / 5 guards and 89 words / 23 guards. Not run.
+DESIGN_LIBS["log12s_v2"] = {16: ("libJit_level16_log12s_v2.so", "f90f0d928a92f384814ccbdc536807010713477f1c93a547425b9549b8d6314b"),
+                            17: ("libJit_level17_log12s_v2.so", "06cdaa4b655104b195a58dfc4991c6f433ead5ae98676c594b2cb2b4dabb8c3f")}
+DESIGN_LIBS["disp12_log12s_v3"] = {16: ("libJit_level16_disp12_log12s_v3.so", "9ea04de9c8e4edf585a498ae8732af59542d56ec80e489ef849fbc8c7558c415"),
+                                   17: ("libJit_level17_disp12_log12s_v3.so", "d0dc6d818ae1e5e5d72371c427678ea8c44baca2076282896e21bcd1f167613b")}
+# disp12n_log12s_v1, disp12n_fc12_v1 (2026-11-27, MIDNIGHT, after request 86): the NATIVE screen designs. The owner: with the assist on the
+# screen is flat 'but nothing like slog3'; 'can we not use a lut to slog3 for the screen as well and let the screen just display it
+# natively?' So the 12-bit curve is undone in the display's normal path: the assist-off curves of the display parameter block (+0x5522)
+# become themselves with the curve undone, and table code 2's curves Sony's own assist of the same; no record changes. Assist OFF = the
+# normal S-Log3 screen, assist ON = the 709 view. 141 and 144 words, 11 guards. Not run.
+DESIGN_LIBS["disp12n_log12s_v1"] = {16: ("libJit_level16_disp12n_log12s_v1.so", "e8acfcfa3f1d5f3686f86cc71a5abc3c6c4c2a0d478811d430d2a4b989efca62"),
+                                    17: ("libJit_level17_disp12n_log12s_v1.so", "43147f55bd559943335be08bb4c99ea763acbee39d6be4d9f18ff37f4f25d881")}
+DESIGN_LIBS["disp12n_fc12_v1"] = {16: ("libJit_level16_disp12n_fc12_v1.so", "217be30429c005355168d1cb9c7ce62b076d9342b602e039fea32971e2eda62b"),
+                                  17: ("libJit_level17_disp12n_fc12_v1.so", "71892e116a1277cdc4f95cbf1423429bd3c9a6139790362d0543acd1923727ba")}
+# log12sh_v1, disp12n_log12sh_v1 (2026-11-27, MIDNIGHT SHADOWS): an OPTION beside the Midnight default, which stays log12s_v2 (the owner:
+# 'keep the current version as default for Midnight, dont overwrite it with newer ones ... make a Shadows version as an option'). The same
+# kind of full-range curve with the 12-bit zone in the shadows: S-Log3 codes 171.4 to 282.4 (table points 31 and 64, 4.0 to 1.95 stops under
+# 18 % grey), recorded codes 132.44 / 584.13 / 994.75 = display inputs 80 / 608 / 1088; slopes 0.897 below, 4.07 inside, 0.675 above. And
+# its native screen design. 131 words / 5 guards and 144 words / 11 guards. Not run.
+DESIGN_LIBS["log12sh_v1"] = {16: ("libJit_level16_log12sh_v1.so", "4b53f3e4404774390b54a98a334210097a980fe9b26cdff83e9c932673c70978"),
+                             17: ("libJit_level17_log12sh_v1.so", "9e48c7d3cd82e04945dbc9354c85f2f2a23ec230b641613c4e9f7440446e332e")}
+DESIGN_LIBS["disp12n_log12sh_v1"] = {16: ("libJit_level16_disp12n_log12sh_v1.so", "df5e6b2bda23dff2176a0315a655a77b8f83dabe91fb9d3120a35086c5f46b09"),
+                                     17: ("libJit_level17_disp12n_log12sh_v1.so", "9659276ce0786505d29f318742bf3b3a6a0173451b41c388e6384643816a4196")}
+# log12w_v1, disp12n_log12w_v1 (2026-11-27, MIDNIGHT WIDE): a second OPTION beside the Midnight default (which stays log12s_v2). After the
+# owner's stock-gamma test (F1146: a contrasty gamma spends about twice S-Log3's codes per stop over four stops) and their 'Yes, build it' to
+# the same shape on the S-Log3 table with the highlights kept. A wide band at 2.27 times stock: S-Log3 codes 203.3 to 492.5 (table points 41
+# and 87, 3.31 stops under to 0.96 over 18 % grey), recorded codes 146.125 / 803.125 / 994.75 = display inputs 96 / 864 / 1088; slopes 0.759
+# below, 2.272 inside, 0.481 above. And its native screen design. 131 words / 5 guards and 144 words / 11 guards. Not run.
+DESIGN_LIBS["log12w_v1"] = {16: ("libJit_level16_log12w_v1.so", "83575d54f648d093bca9581bfb0569bc9e76755cc3d5ea9ecd56af620db19fab"),
+                            17: ("libJit_level17_log12w_v1.so", "44642dd983f7e9a314623d6ec0a4f137925ff77be079d8504005143ba50337db")}
+DESIGN_LIBS["disp12n_log12w_v1"] = {16: ("libJit_level16_disp12n_log12w_v1.so", "9ba98dd3f572997b00c12287433169901033b374466659c57fb34e7ae84e1f85"),
+                                    17: ("libJit_level17_disp12n_log12w_v1.so", "01be9e74b9c883ad23a63ac5d547f4c3a26c5974fc8b14c597a1f3314d53fd4e")}
 LEVEL = 1
 LIB = HERE / "helper" / LIBS[1][0]
 LIB_SHA256 = LIBS[1][1]
@@ -532,6 +599,8 @@ GUARDS = []                                        # the guard of the current se
 # the service partition, which is flash: it is still there after a cold boot, and every later step, having another library, refused to go on
 # (an FX3 tester, 2026-11-26). A file whose hash is listed here is deleted and the run goes on. Empty (this script by itself): nothing changes.
 KNOWN_LIBS = {}
+# How a stopped run says to name a file that is none of the kit's (the FX3 kit's wording; c2_level_run sets its own).
+REMOVE_HINT = "run the read-only check with --remove-library and that SHA-256"
 
 
 class Guard(c.ServiceGuard):
@@ -820,6 +889,18 @@ def check_result(data):
                                                        "thresholds_of_row", "debug_copies_present")},
                             "buffers": [{k: v for k, v in b.items() if k != "block_hex"} for b in dec.get("buffers", [])],
                             "decode_problems": dec.get("problems"), "report": nrs_state.report(dec).split("\n")}
+        facts["_out_ranges"], facts["_out_decoded"] = ranges, dec
+    if LEVEL == 35:
+        sys.path.insert(0, str(HERE.parent.parent / "build"))
+        import disp_state
+        ranges = disp_state.parse_result(data)
+        part = data.split(b"== level 35:", 1)[1] if b"== level 35:" in data else b""
+        dec = disp_state.decode(ranges)
+        facts["level35"] = {"complete": b"\nlevel 35 complete\n" in data, "released": data.count(b"\nbuffer released\n"),
+                            "problems": [m.decode() for m in re.findall(rb"^!! .*$", re.sub(rb"== cp range \w+ at 0x[0-9a-f]{8} raw (\d+) bytes follow\n(?s:.*?)\n== cp range end\n", b"", part), re.M)],
+                            "ranges": {n: {"address": "0x%08x" % a, "bytes": len(b), "sha256": c.sha256(b)} for n, (a, b) in ranges.items()},
+                            **{k: dec.get(k) for k in ("drive_mode_id", "output_size", "bytes", "all_zero_ranges")},
+                            "decode_problems": dec.get("problems"), "report": disp_state.report(dec).split("\n")}
         facts["_out_ranges"], facts["_out_decoded"] = ranges, dec
     if LEVEL in (13, 14):
         head = re.search(rb"^== level 1[34]: (apply|put back) the four memory-manager words of (\S+)$", data, re.M)
@@ -1175,8 +1256,8 @@ def body_run(session, camera, lib):
         raise c.StopTest("a libJit.so is already on the service partition (%d bytes, %s). Nothing was written. %s"
                          % (len(data), "it is this script's library from an earlier run" if ours else "it is NOT this script's library",
                             "Use --remove-only." if ours else "It is left alone." if not KNOWN_LIBS else
-                            "It is none of this kit's libraries (SHA-256 %s) and is left alone. To delete it, run the read-only check with --remove-library and that SHA-256."
-                            % c.sha256(data)))
+                            "It is none of this kit's libraries (SHA-256 %s) and is left alone. To delete it, %s."
+                            % (c.sha256(data), REMOVE_HINT)))
     there, old = read(camera, RESULT_PATH)
     if there and CLEAR_SHA and c.sha256(old) == CLEAR_SHA:          # --clear-result: it is a result already saved here; delete it and go on
         session.say("An earlier result is on the RAM disk and is the one already saved here (%d bytes). Deleting it." % len(old))
@@ -1292,6 +1373,12 @@ def body_run(session, camera, lib):
         session.say("Level 34: %s; %d ranges copied (%s)%s" % ("complete" if f["complete"] else "NOT complete", len(f["ranges"]),
                                                               ", ".join("%s %d bytes" % (n, r["bytes"]) for n, r in f["ranges"].items()),
                                                               "; reported: " + "; ".join(f["problems"]) if f["problems"] else ""))
+        for line in f["report"]:
+            session.say("  " + line)
+    if LEVEL == 35:
+        f = facts["level35"]
+        session.say("Level 35: %s; %d ranges copied%s" % ("complete" if f["complete"] else "NOT complete", len(f["ranges"]),
+                                                         "; reported: " + "; ".join(f["problems"]) if f["problems"] else ""))
         for line in f["report"]:
             session.say("  " + line)
     if LEVEL == 21:
@@ -1542,6 +1629,9 @@ def run_helper(data):
     if LEVEL == 28:
         files["/dev/mem"] = b""
         cp = emu_built.frame_model()[1]                    # the four model rings with one entry of each filled in, and the file's tables
+    if LEVEL == 35:
+        files["/dev/mem"] = b""
+        cp = emu_built.disp_model()[1]                     # an address pattern, with the camera core's drive mode in the context
     if LEVEL == 34:
         files["/dev/mem"] = b""
         cp = emu_built.nrs_model()[1]                      # the spatial stage's state with known flags, aux, buffers, setters and one table
@@ -1819,6 +1909,11 @@ def selftest(lib):
               and f["spatial_switch"] == "on (CamNrOnOff 0)" and f["aux"]["row"] == 3 and f["apply_uses_buffer"] == 1 and f["tables_loaded"] is True
               and f["drive_mode_id"] == "0x8c0" and f["temporal_override_0x143ca55"] == 1,
               "normal run, level 34: eight ranges copied out and decoded: the switch, the job's gain and row, the buffer in use and the tables")
+    if LEVEL == 35 and sim.how == "emulated":
+        f = r["result"]["level35"]
+        check(f["complete"] and not f["problems"] and not f["decode_problems"] and len(f["ranges"]) == 21 and f["released"] == 1
+              and f["bytes"] == 491520 and f["drive_mode_id"] == "0x8c0" and not f["all_zero_ranges"],
+              "normal run, level 35: 21 ranges of display state copied out (491,520 bytes), with the camera core's drive mode")
     if LEVEL == 21 and sim.how == "emulated":
         f = r["result"]["level21"]
         check(f["complete"] and not f["problems"] and not f["decode_problems"] and len(f["ranges"]) == 2 and len(f["ports"]) == 25
