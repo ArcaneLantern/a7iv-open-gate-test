@@ -1,0 +1,24 @@
+{
+ "design": "nrvoff_v1",
+ "sites": [
+  {
+   "ram_address": "0x143ca54",
+   "old": "00000000",
+   "new": "00010000",
+   "note": "bytes 0x143ca54..57: the second byte (0x143ca55) 0 to 1. 0x143ca54 and 0x143ca56 have no reader in the map; 0x143ca57 is read by 0xa06288 and stays 0"
+  }
+ ],
+ "summary": {
+  "sites": 1,
+  "bytes": 4,
+  "stage": "CamNrv (level 1, registers 0xf3820000 and 0xf3920000)",
+  "effect": "function bytes (acm, dnr2, dnr3) = (0,0,0) for every movie request, so CamNrv mode 1: no reference frame, enable register 0xd840 not written, register set of the record at +0x62c",
+  "scope": "every movie mode until a cold boot, not only the open gate ones; stills requests already use (0,0,0)",
+  "goes_with": [
+   "open_gate_apply.py --test nr-4k",
+   "open_gate_apply.py --test nr-5.7k"
+  ],
+  "when": "any time before movie mode is entered: the byte is read at each sequence set-up",
+  "not_known": "which mode a stock 4K 24p recording uses (the set-up gives mode 6 unless a request field or a per-frame flag says otherwise; a read over USB cannot show it, see build/nr_state.py). If stock already runs mode 1 this changes nothing"
+ }
+}

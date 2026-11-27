@@ -1,0 +1,20 @@
+{
+ "design": "nrsoff_v1",
+ "sites": [
+  {
+   "ram_address": "0x1a39188",
+   "old": "00000000",
+   "new": "00010000",
+   "note": "bytes 0x1a39188..8b: SHD, CAMNR, YAP, LIM28 flags; CAMNR (0x1a39189) 0 to 1. The other three stay 0"
+  }
+ ],
+ "summary": {
+  "sites": 1,
+  "bytes": 4,
+  "stage": "CamNrs (level 2), its Nr register group 0x7000-0x787c and sub-block word 0x1fc",
+  "effect": "CAMNRS::job_YC_CalcParam 0x339d78 zeroes the stage's enable bytes at each picture calculation; the movie path 0x8440d2 -> 0x87857e writes them: registers 0x7000, 0x7004, 0x700c = 0, 0x1fc = bit 26 only (emulated)",
+  "scope": "every picture the calculation serves until a cold boot (movie and live view; stills too, which have their own develop path 0x33b548 as well)",
+  "when": "any time; the calculation reads the byte each time it runs (exposure and setting changes)",
+  "not_known": "the camera's value of the word (zero from start-up by the code; never read); whether the host ever sends command 0xf6 (it would overwrite the byte); what the hardware does with all enables at 0"
+ }
+}

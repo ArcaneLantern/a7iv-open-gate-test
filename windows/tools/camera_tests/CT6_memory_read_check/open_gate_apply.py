@@ -7,8 +7,10 @@ Temporary: memory only. A cold boot (battery out for 10 seconds) returns the cam
 Run it through open_gate_4k.cmd or open_gate_5.7k.cmd, or on macOS through macos/open_gate_4k.command or
 macos/open_gate_5.7k.command.
 It asks whether the camera is set to NTSC (24p) or PAL (25p, XAVC S 4K only); step 2 differs between the two.
+It also asks whether to switch the camera's movie noise reduction off (temporal and spatial: two more steps).
 
     --ntsc / --pal   answer that question on the command line
+    --nr-off / --nr-on   noise reduction off, or kept, without the question
     --no-cycle   leave out the C3 cycle        --no-lcd32   leave out the rear screen 3:2 and the C3 cycle
     --old-lcd    the rear-screen steps as before 2026-11-21 (no focus frames on the rear screen)
     --rate100    5.7K: the menu's own bit rate (at most 100 Mbps) instead of 300 Mbps on the 100M record settings
@@ -78,6 +80,24 @@ ENC_HS_S_V2 = (19, "ogfile2560_hs_s_v2", "cbd83147596c92ba5c5f715fc336d09839576a
 ENC_57_300_M1_V4 = (19, "ogfile57r300m1_v4", "cbd9c4e942676ca29f62acd966ba73750919d416c0641dbe7447c471480296ad", "level1920",
                     "the encoder side for 5760x3840 at 300 Mbps on the 100M settings, I and P pictures only in every record setting, an HEVC "
                     "recording's edit list starting at 0, and the MP4 headers saying 5760x3840 (v3 plus nine libmpr.so sites)")
+# 2026-11-25 (the owner, after ENC_SI_57 worked at 24p, F1014: "build a variant of the 5.7K S-I script, and attempt to make it use HEVC in S-I mode
+# (so I frames only)"; build/build_ogfile_sih.py): the same place in the 5.7K state, INSTEAD of ENC_SI_57. XAVC S-I 4K is asked as HEVC, coded as
+# I pictures only, in an hvc1 MP4. ENC_SIH_57 is an HEVC intra channel (PredMode 0, as HEIF stills; S-I's 240M/250M per-picture budget);
+# ENC_SIH_57_P1 (--hevc-gop1) is the fallback: the I/P channel XAVC HS uses at 5.7K, with a GOP of one picture. Not run when written.
+ENC_SIH_57 = (19, "ogfilesih57_v1", "d7427d2c895a52fa2b16e7d48aecb8fa3f0de67b192f8274e0b175a11387be98", "level1920",
+              "XAVC S-I 4K recorded as HEVC 4:2:2 10-bit, I pictures only, at 5760x3840: an HEVC intra channel (PredMode 0, M 0, N 1, S-I's own "
+              "bits per picture) in an hvc1 MP4")
+ENC_SIH_57_P1 = (19, "ogfilesih57p1_v1", "0c605aea3853809c23c0c8da53756d4c31711b77262d96db376a210392f6d095", "level1920",
+                 "XAVC S-I 4K recorded as HEVC 4:2:2 10-bit, I pictures only, at 5760x3840: the I/P channel of XAVC HS with a GOP of one picture "
+                 "(PredMode 1, M 1, N 1, Sony's 300 Mbps figures) in an hvc1 MP4")
+# 2026-11-25, after ENC_SIH_57_P1 worked (F1017) with a 10-picture rate-control cycle (every 10th picture ~3x the bits, ~13 QP finer): two
+# bisection variants on the same channel, about 300 Mb/s as bits per picture. --hevc-gop1-intrarc: the intra rate-control set-up of AVC S-I and
+# HEIF (M 0, rates 0, per-picture budget); --hevc-gop1-bits: ENC_SIH_57_P1 plus the per-picture budget. Not run when written.
+ENC_SIH_57_P2 = (19, "ogfilesih57p2_v1", "5c62681a84ed6884e36a5acc9b175de91b1782c9a64246674bcd6af1cd46ef7f", "level1920",
+                 "XAVC S-I 4K as HEVC, I pictures only, 5760x3840: the I/P channel with the intra rate-control set-up (M 0, N 1, rate fields 0, "
+                 "about 300 Mb/s as bits per picture)")
+ENC_SIH_57_P3 = (19, "ogfilesih57p3_v1", "4266fef9a657418aee507751f307d0daf3878a3dce9b41b044455efe1ff98ab8", "level1920",
+                 "XAVC S-I 4K as HEVC, I pictures only, 5760x3840: the --hevc-gop1 step plus a per-picture budget of about 300 Mb/s")
 # 2026-11-21: step 2 for a camera set to PAL: the same design moved to drive mode 0x880, which PAL uses for full-frame 4K 25p, with the
 # stored record of that mode in the PAL family's bytes (build/build_mode880.py). Keyed by the NTSC design's name. A state whose step 2
 # is not here has no PAL build. Both applied and worked on the camera on 2026-11-21 (F965).
@@ -86,6 +106,37 @@ PAL_SQ = (5, "ogsq880_v1", "f7db0d936713a2a41acdfc7746828ea7d0a201b32fc58a166529
 PAL_57N = (5, "og57n880_v1", "e2908a73cecab247d5d37be5d757beeb9a1c30fcf60f55aa0a481b93af527760", "level56",
            "the full-height picture, 5760x3840 out of the first scaler, in drive mode 0x880 (camera set to PAL, 25p)")
 PAL = {"ogsq_v3": PAL_SQ, "og57n_v1": PAL_57N}
+# 2026-11-26 (the owner: "open gate in S35 mode for 50p and 60p ... a 3840x2560 option and a ~4672x3114 ... option"; build/build_og_s35.py,
+# modding/OGS35_TEST.md): Super 35 4K at 59.94p (NTSC) and 50p (PAL) runs drive mode 0x821. Step 1 is the sensor side: the sensor's own window
+# 4672x3120 from row 774 in a new register-matrix column (0x821 only), the mode's tables and picture records, and its stored record. The library
+# carries the NTSC and the PAL record (MULTI_REC) and writes the one the camera holds, so the same step serves both. No raw-buffer step: the
+# 3,136-row stage fits the stock raw write buffer (3,958 rows). The encoder steps set up 59.94p and 50p only. None of this has run on a camera.
+PIC_S35SQ = (5, "og35sq_v1", "d9ad9728f4b388acc53c7fb2af568a4602b90fbba68a1fc0d0dc5832f963863a", "level56",
+             "the Super 35 window made 3:2 (4672x3120 from sensor row 774, drive mode 0x821, a new sensor-register column), squeezed into the stock "
+             "4336x2438 first-scaler picture")
+PIC_S35N = (5, "og35n_v1", "d79527c8f4f028cf2324414b71d9afcba1e86d77eb318c636d4e230c55172c86", "level56",
+            "the Super 35 window made 3:2 (4672x3120 from sensor row 774, drive mode 0x821, a new sensor-register column), 4672x3120 out of the "
+            "first scaler, one to one")
+UNITS2 = (16, "units2_v1", "8b773f08b551f8b8d95422a524ecf11802d614ab2ae771618bfe68100b87e152", "level1617",
+          "the unit-count setting to 0: two scaler units for 4K (the owner's camera comes up with four since 2026-11-19, F800)")
+# Test 0 of request 77 (the owner: "Build band test"; build/build_og_s35_band.py): the same sensor side, but the first crop takes the STOCK band
+# back out of the taller window, so everything after it is stock. One step, on a stock camera: the picture must look exactly like stock S35 4K.
+PIC_S35BAND = (5, "og35band_v1", "55401f055f384769e1459722e147267b669a769e86eb1de490f045b8b31c363f", "level56",
+               "the Super 35 sensor window made 3:2 (4672x3120 from sensor row 774, drive mode 0x821, a new sensor-register column), the first crop "
+               "taking the stock 4672x2628 band back out of it: everything after it stock")
+PAL.update({"og35sq_v1": PIC_S35SQ, "og35n_v1": PIC_S35N, "og35band_v1": PIC_S35BAND})     # one library for NTSC and PAL (the stored record's two variants)
+S35_TESTS = ("s35-2560", "s35-native", "s35-band")
+# 2026-11-27, request 78 (the owner: "temporal noise reduction can be disabled and spatial can be turned down or even to 0, make a plan to
+# implement this in a test script with the open gate modules we have so far (4k, 5.7k 300mbps)"). build/build_nr_words.py, modding/NR_TEST.md.
+# NRV_OFF is the firmware's own override for the temporal stage; NRS_GATE is an experiment on the spatial stage (--spatial). Both go last, so a
+# refusal leaves the open gate state before them complete. Not run on a camera.
+NRV_OFF = (16, "nrvoff_v1", "767a7baffb48446f6cf6e950a3e4376719207fd57f4606d69ab76246869e3385", "level1617",
+           "temporal noise reduction off in movie: the firmware's own override byte for the temporal stage's functions, 0 to 1")
+# 2026-11-27 (the owner: "trace and find out where spatial noise reduction happens and how to control it"; F1053): the spatial stage's own
+# developer switch. Replaces NRS_GATE behind --spatial; NRS_GATE stays pinned but no flag uses it. Not run on a camera.
+NRS_OFF = (16, "nrsoff_v1", "5ff2dc8e4988f00c9bf52b0d89416535705616c4506d6201a25ff9c4a608e199", "level1617",
+           "spatial noise reduction off: the firmware's own developer switch CamNrOnOff (byte 0x1a39189), 0 to 1")
+NR_TESTS = ("nr-4k", "nr-5.7k")
 RATE = {"NTSC": "24p", "PAL": "25p"}
 BOTH = "XAVC HS 4K or XAVC S 4K"
 STATES = {
@@ -109,6 +160,12 @@ STATES = {
                          "Not yet tried in this state: long recordings (heat).",
                          "IF THE CAMERA RESTARTS OR FREEZES: do not cold boot; connect USB and say so (level 10 reads the crash report)."]},
 }
+
+
+NR_SPATIAL_NOTES = ["Spatial step: the firmware's own developer switch for the spatial noise-reduction stage (CamNrOnOff) is set",
+                    "to off. Expect finer, sharper-looking grain and more chroma noise. It has not run on a camera: it may do",
+                    "nothing (if the camera resets the switch) or spoil the picture. It also reaches photographs taken meanwhile.",
+                    "Compare with a clip made without --spatial, so the two effects can be told apart."]
 COLD_BOOT = "Cold boot the camera (power off, battery out for 10 seconds). That returns it to stock."
 
 
@@ -136,6 +193,22 @@ def ask_family():
     if answer not in RATE:
         raise SystemExit("Neither NTSC nor PAL. Nothing was sent.")
     return answer
+
+
+NR_OFF_NOTES = ["Noise reduction OFF: the camera's own switches for movie noise reduction are set (temporal and spatial). Expect",
+                "more and finer grain, most visible from ISO 12800 (about 1.45x the noise in the shadows there), and no smoothing of",
+                "fine detail. The switches also reach photographs taken while it is applied. A cold boot turns noise reduction back on."]
+
+
+def ask_nr():
+    say()
+    say("Noise reduction: the camera's movie noise reduction can be switched off (temporal and spatial; more, finer grain).")
+    answer = input("Type OFF to switch it off, or press Enter to keep it: ").strip().upper()
+    if answer in ("OFF", "Y", "YES"):
+        return True
+    if answer in ("", "N", "NO", "ON", "KEEP"):
+        return False
+    raise SystemExit("Neither OFF nor Enter. Nothing was sent.")
 
 
 def library(level, design):
@@ -268,13 +341,24 @@ def offline(mode, steps):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.set_defaults(hs_only=False, with_xavc_s=False, test=None, lcd32=False, cycle=False)
+    ap.set_defaults(hs_only=False, with_xavc_s=False, test=None, lcd32=False, cycle=False, spatial=False, spatial_only=False)
     ap.add_argument("--real57", action="store_true", help="the real 5760x3840 state (F906): first scaler 5760x3840 (og57n_v1), XAVC HS 4K at 24p, with the rear-screen steps")
+    ap.add_argument("--hevc-gop1", action="store_true", help="with --test si-hevc-5.7k: the fallback step ogfilesih57p1_v1 (XAVC HS's I/P channel with a GOP of one picture) "
+                                                             "instead of the HEVC intra channel")
+    ap.add_argument("--hevc-gop1-intrarc", action="store_true", help="with --test si-hevc-5.7k: ogfilesih57p2_v1, the --hevc-gop1 channel with the intra "
+                                                                     "rate-control set-up (M 0, rates 0, a per-picture budget of about 300 Mb/s); a test of the 10-frame pulse")
+    ap.add_argument("--hevc-gop1-bits", action="store_true", help="with --test si-hevc-5.7k: ogfilesih57p3_v1, the --hevc-gop1 step plus a per-picture budget "
+                                                                  "of about 300 Mb/s; a test of the 10-frame pulse")
     ap.add_argument("--old-lcd", action="store_true", help="use the rear-screen steps as they were before 2026-11-21 (lcdfill_v1, lcdcycle_v5: proven, but no focus frames on the rear screen, F966)")
     ap.add_argument("--rate100", action="store_true", help="5.7K: the encoder step as it was before 2026-11-21 (ogfile57_v1): the menu's own bit rate, at most 100 Mbps, instead of 300 Mbps on the 100M settings (B pictures and the MP4 header size as then)")
     ap.add_argument("--no-meta", action="store_true", help="the encoder step without the MP4 header size (before 2026-11-24): the headers say 3840x2160 as the camera's own (4K: ogfile2560_hs_s_v1; 5.7K: ogfile57r300m1_v3)")
+    ap.add_argument("--two-units", action="store_true", help="with --test s35-2560 or s35-band: one more step, units2_v1, so that 4K runs on two scaler "
+                                                             "units (the owner's camera comes up with four since 2026-11-19, F800); a test of the slow 60p timer")
     ap.add_argument("--no-cycle", action="store_true", help="leave out the C3 anamorphic preview cycle (step 6): C3 keeps its own function in movie mode")
     ap.add_argument("--no-lcd32", action="store_true", help="leave out the rear-screen step: live view squeezed in a 16:9 letterbox, as before 2026-11-19")
+    ap.add_argument("--nr-off", action="store_true", help="switch the camera's movie noise reduction off (temporal and spatial): two more steps at "
+                                                          "the end, nrvoff_v1 and nrsoff_v1 (proven on the camera, F1058); without --nr-off or --nr-on the script asks")
+    ap.add_argument("--nr-on", action="store_true", help="keep the camera's noise reduction (no question)")
     ap.add_argument("--ntsc", action="store_true", help="the camera's NTSC/PAL Selector is on NTSC (24p); without --ntsc or --pal the script asks")
     ap.add_argument("--pal", action="store_true", help="the camera's NTSC/PAL Selector is on PAL (25p, XAVC S 4K): step 2 is the design for drive mode 0x880 (F965)")
     ap.add_argument("--dry-run", action="store_true", help="show what each step would send, on a simulated camera; nothing is sent")
@@ -299,28 +383,65 @@ def main():
     if args.rate100:
         if args.test in ("5.7k-300-m1", "5.7k-300-m1all", "5.7k-meta"):
             raise SystemExit("--rate100 does not go with the M = 1 tests: they are 300 Mbps tests. Nothing was sent.")
+        if args.test == "si-hevc-5.7k":
+            raise SystemExit("--rate100 does not go with the HEVC S-I test: its MP4 track takes the 5760x3840 size from step 4's header sites. Nothing was sent.")
         steps = [ENC_57 if x in (ENC_57_300, ENC_57_300_M1_V4) else x for x in steps]
     if args.no_meta:
+        if ENC_SIH_57 in steps:
+            raise SystemExit("--no-meta does not go with the HEVC S-I test: its MP4 track takes the 5760x3840 size from step 4's header sites. Nothing was sent.")
         steps = [{ENC_HS_S_V2: ENC_HS_S, ENC_57_300_M1_V4: ENC_57_300_M1ALL}.get(x, x) for x in steps]
+    chosen = [(flag, step) for flag, step in (("--hevc-gop1", ENC_SIH_57_P1), ("--hevc-gop1-intrarc", ENC_SIH_57_P2), ("--hevc-gop1-bits", ENC_SIH_57_P3))
+              if getattr(args, flag[2:].replace("-", "_"))]
+    if len(chosen) > 1:
+        raise SystemExit("Choose one of --hevc-gop1, --hevc-gop1-intrarc, --hevc-gop1-bits. Nothing was sent.")
+    if chosen:
+        if ENC_SIH_57 not in steps:
+            raise SystemExit("%s goes with --test si-hevc-5.7k only. Nothing was sent." % chosen[0][0])
+        steps = [chosen[0][1] if x == ENC_SIH_57 else x for x in steps]
+    if args.two_units:
+        if args.test not in ("s35-2560", "s35-band"):
+            raise SystemExit("--two-units goes with --test s35-2560 or --test s35-band. Nothing was sent.")
+        at = steps.index(OUT_2560) + 1 if OUT_2560 in steps else 1
+        steps = steps[:at] + [UNITS2] + steps[at:]
     if st.get("ntsc_only") and args.pal:
         raise SystemExit("This test changes only XAVC HS 4K 24p 100M 4:2:2 10bit, which a camera set to PAL does not offer. Set the "
                          "NTSC/PAL Selector to NTSC for it. Nothing was sent.")
     if args.old_lcd:
         steps = [{LCD_32: LCD_32_V1, CYCLE: CYCLE_V5, CYCLE_V7: CYCLE_V5}.get(x, x) for x in steps]
+    if args.spatial or args.spatial_only:
+        if args.test not in NR_TESTS:
+            raise SystemExit("--spatial and --spatial-only go with --test nr-4k or --test nr-5.7k. Nothing was sent.")
+        if args.spatial and args.spatial_only:
+            raise SystemExit("Choose one of --spatial (both steps) and --spatial-only. Nothing was sent.")
+        steps = [x for x in steps if x != NRV_OFF] + ([NRV_OFF] if args.spatial else []) + [NRS_OFF]      # the noise-reduction steps stay last
+        head = st["notes"][:5] if args.spatial else ["THIS IS A TEST of the spatial step alone. Temporal noise reduction stays as the camera has it."]
+        st = dict(st, notes=head + NR_SPATIAL_NOTES + st["notes"][6:])
+    elif args.test in NR_TESTS:
+        steps = [x for x in steps if x != NRV_OFF] + [NRV_OFF]                      # last, whatever the rear-screen flags did
     if args.ntsc and args.pal:
         raise SystemExit("--ntsc and --pal do not go together. Nothing was sent.")
+    if args.nr_off and args.nr_on:
+        raise SystemExit("--nr-off and --nr-on do not go together. Nothing was sent.")
+    if (args.nr_off or args.nr_on) and args.test:
+        raise SystemExit("--nr-off and --nr-on go with the 4K and 5.7K states, not with --test (the noise tests have their own steps). Nothing was sent.")
+    nr_off = True if args.nr_off else False if (args.nr_on or args.test) else None       # None: ask in the live run
     if args.dry_run or args.selftest:
-        return offline("--dry-run" if args.dry_run else "--selftest", for_family(steps, "PAL" if args.pal else "NTSC"))
+        return offline("--dry-run" if args.dry_run else "--selftest", for_family(steps + ([NRV_OFF, NRS_OFF] if nr_off else []), "PAL" if args.pal else "NTSC"))
 
     say(st["title"])
     say("-" * 78)
     family = "PAL" if args.pal else "NTSC" if args.ntsc else ask_family()
+    if nr_off is None:
+        nr_off = ask_nr()
+    if nr_off:
+        steps = steps + [NRV_OFF, NRS_OFF]                                          # last: a refusal there leaves the open gate state complete
+        st = dict(st, notes=st["notes"] + NR_OFF_NOTES)
     if st.get("ntsc_only") and family != "NTSC":
         raise SystemExit("This test changes only XAVC HS 4K 24p 100M 4:2:2 10bit, which a camera set to PAL does not offer. Set the "
                          "NTSC/PAL Selector to NTSC for it. Nothing was sent.")
-    steps, rate = for_family(steps, family), RATE[family]
+    steps, rate = for_family(steps, family), st.get("rates", RATE)[family]
     if family == "PAL":
-        formats = "XAVC S 4K"                     # on PAL the camera's own menu offers XAVC HS 4K at 50p only (Super 35); 25p exists in XAVC S 4K
+        formats = st.get("pal_formats", "XAVC S 4K")   # on PAL the camera's own menu offers XAVC HS 4K at 50p only (Super 35); 25p exists in XAVC S 4K (and S-I 4K)
     say()
     if st["test"]:
         say(st["test"] + ".")
@@ -330,6 +451,9 @@ def main():
     say()
     say("Before you start:")
     say("  1. The camera is set to %s: in the menu, set File Format to %s and the frame rate to %s." % (family, formats, rate))
+    if st.get("s35"):
+        say("     Record Setting: any 4K %s setting. 4K %s is always Super 35 on this camera (APS-C S35 is used by itself)." % (rate.split()[0], rate.split()[0]))
+        say("     Proxy Recording: Off.")
     say("  2. Cold boot the camera: power off, battery out for 10 seconds, battery in.")
     say("  3. Turn it on with the mode dial on STILLS (not movie).")
     if any(x in steps for x in CYCLES):
@@ -340,13 +464,26 @@ def main():
     say("  4. Connect the USB cable. USB Connection Mode: Mass Storage.")
     say()
     say("While it is applied:")
-    say("  - Only %s at %s records properly. Do NOT record in another 4K format or" % (formats, rate))
-    say("    frame rate, and stay in full-frame 4K: do not switch to HD or to APS-C/Super 35")
-    say("    (a mode that is not set up can stop the camera responding; it then needs a cold boot).")
+    if st.get("band"):
+        say("  - Only drive mode 0x821 changes (Super 35 4K at 25p, 30p, 50p and 60p): its picture should be stock. Full frame, Super 35")
+        say("    4K 24p and Super 35 HD are not touched. The encoder is not touched.")
+    elif st.get("s35"):
+        say("  - Only %s at %s (Super 35) records properly. Do NOT record in another 4K format or" % (formats, rate))
+        say("    frame rate, and do not record full-frame 4K (24p/25p/30p) in this state: the encoder is set for the new size")
+        say("    (a mode that is not set up can stop the camera responding; it then needs a cold boot).")
+    else:
+        say("  - Only %s at %s records properly. Do NOT record in another 4K format or" % (formats, rate))
+        say("    frame rate, and stay in full-frame 4K: do not switch to HD or to APS-C/Super 35")
+        say("    (a mode that is not set up can stop the camera responding; it then needs a cold boot).")
     for k, line in enumerate(st["notes"]):
         say(("  - " if k == 0 or line[:1].isupper() and st["notes"][k - 1].endswith((".", ")")) else "    ") + line)
     say("  - Do not change the NTSC/PAL Selector while it is applied.")
-    if family == "PAL":
+    if st.get("s35"):
+        say("  - Step 1 carries the stored sensor record for NTSC (59.94p) and for PAL (50p) and writes the one the camera holds.")
+    elif family == "PAL" and st.get("pal_formats"):
+        say("  - On PAL: XAVC S-I 4K at 25p (and XAVC S 4K at 25p as a control). That S-I 25p uses the same full-frame mode as")
+        say("    XAVC S 4K 25p (drive mode 0x880) is assumed, not read from a camera: if the picture looks stretched, say so.")
+    elif family == "PAL":
         say("  - On PAL use XAVC S 4K: the camera offers XAVC HS 4K at 50p only (Super 35), which this state does not cover.")
         say("  - PAL is new (first camera runs 2026-11-21, one camera): step 2 changes drive mode 0x880, the mode PAL uses for 25p.")
         say("    If the picture looks stretched or the camera restarts, say so.")
@@ -406,11 +543,14 @@ def main():
     elif CYCLE in steps or CYCLE_V5 in steps:
         say("     Press C3 to step the rear screen 3:2 -> 2:1 -> 2.4:1 -> 3:2 (say what")
         say("     each press shows). Avoid touching the screen or other buttons while the steps run.")
+    elif st.get("look"):
+        for line in st["look"]:
+            say(line)
     else:
         say("  2. Turn the dial to movie. The rear screen shows the full-height picture, squeezed.")
     if st.get("record"):
         for line in st["record"]:
-            say(line)
+            say(line % rate if "%s" in line else line)
     elif st["test"]:
         say("  3. Record a few seconds in %s at %s, stop, and play the clip back." % (formats, rate))
         say("     The file should be %s." % size)
@@ -418,9 +558,12 @@ def main():
         say("  3. Record in %s at %s. The file is %s." % (formats, rate, size))
     say()
     say("Remember:")
-    say("  - Stay in %s at %s, full frame. Other formats and frame rates do not work in this state." % (formats, rate))
+    if st.get("band"):
+        say("  - This state records the stock 3840x2160 file in every mode; only the sensor window of Super 35 4K 25p-60p is changed.")
+    else:
+        say("  - Stay in %s at %s, %s. Other formats and frame rates do not work in this state." % (formats, rate, "Super 35" if st.get("s35") else "full frame"))
     say("  - Power-off, a restart or a cold boot removes the settings; run this again to get them back.")
-    if args.test in ("5.7k", "5.7k-300", "5.7k-300-m1", "5.7k-300-m1all", "5.7k-300-slot8", "4k-meta", "5.7k-meta"):
+    if args.test in ("5.7k", "5.7k-300", "5.7k-300-m1", "5.7k-300-m1all", "5.7k-300-slot8", "4k-meta", "5.7k-meta", "si-4k", "si-5.7k", "si-hevc-5.7k", "s-hevc-4k", "s-hevc-5.7k") + S35_TESTS + NR_TESTS:
         say("  - IF IT FAILS: leave the camera on if you can, connect USB, and report what you saw before any cold boot.")
     say("  - When you are done, cold boot the camera to return it to stock.")
     say("  - If the camera misbehaves and will not respond: " + COLD_BOOT)

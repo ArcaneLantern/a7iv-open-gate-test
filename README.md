@@ -70,6 +70,10 @@ macos/open_gate_4k.command and macos/open_gate_5.7k.command: the same two, on a 
 <img width="1216" height="2640" alt="10269" src="https://github.com/user-attachments/assets/21ed1586-602f-4396-8811-f7f2a147398e" />
 
 
+<h3>Noise reduction off (optional)</h3>
+<p>The scripts ask "Type OFF to switch it off, or press Enter to keep it": typing OFF switches the camera's own movie noise reduction off (temporal and spatial), with two more steps at the end. Expect more, finer grain and no smudging of fine detail, most visible at high ISO (at ISO 12800 about 1.45x the noise in the shadows). Pressing Enter keeps the camera's noise reduction as before. On the command line, <em>--nr-off</em> or <em>--nr-on</em> answers the question in advance. In the Android app it is the "Noise reduction off" check box. Like everything else here it is temporary: a cold boot turns noise reduction back on. It also affects photos taken while it is applied.</p>
+
+
 <h3>Can I support the project?</h3>
 Yes, I currently accept donations at: https://ko-fi.com/arcanelantern<br />
 If you decide to donate, please leave a message about what you are most interested in (feature, camera model etc).<br />
